@@ -2,7 +2,7 @@
 ![Luigi Acerbi](https://github.com/lacerbi/lacerbi.github.io/blob/master/luigi-acerbi.png?raw=true)
 ### Machine & Human Intelligence
 
-I am a tenure-track assistant professor at the [Department of Computer Science](https://www.helsinki.fi/en/computer-science) of the University of Helsinki, where I lead the [Machine and Human Intelligence](https://www.helsinki.fi/en/researchgroups/machine-and-human-intelligence) research group. I am also an active member of the [Finnish Center for Artificial Intelligence FCAI](https://fcai.fi/) and of [ELLIS (European Laboratory for Learning and Intelligent Systems)](https://ellis.eu/). 
+I am an associate professor at the [Department of Computer Science](https://www.helsinki.fi/en/computer-science) of the University of Helsinki, where I lead the [Machine and Human Intelligence](https://www.helsinki.fi/en/researchgroups/machine-and-human-intelligence) research group. I am also an active member of the [Finnish Center for Artificial Intelligence FCAI](https://fcai.fi/) and of [ELLIS (European Laboratory for Learning and Intelligent Systems)](https://ellis.eu/). 
 
 My research spans:
 
