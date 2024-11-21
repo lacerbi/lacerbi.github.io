@@ -15,7 +15,7 @@ profile:
 
 news: false # includes a list of news items
 selected_papers: false # includes a list of papers marked as "selected={true}"
-social: false # includes social icons at the bottom of the page
+social: true # includes social icons at the bottom of the page
 ---
 
 I am an associate professor at the [Department of Computer Science](https://www.helsinki.fi/en/computer-science) of the University of Helsinki, where I lead the [Machine and Human Intelligence](https://www.helsinki.fi/en/researchgroups/machine-and-human-intelligence) research group. I am also an active member of the [Finnish Center for Artificial Intelligence FCAI](https://fcai.fi/) and of [ELLIS (European Laboratory for Learning and Intelligent Systems)](https://ellis.eu/). 
