@@ -25,15 +25,9 @@ My research spans:
 - **probabilistic machine learning**, with a focus on building efficient methods for statistical inference;
 - **computational and cognitive neuroscience**, with a focus on Bayesian models of perception and resource-constrained rationality.
 
-Previously, I was a postdoc in [Alex Pouget](https://www.unige.ch/medecine/neuf/en/research/grecherche/alexandre-pouget/)‘s lab in Geneva, Switzerland, and with [Wei Ji Ma](https://www.cns.nyu.edu/malab/ "Wei Ji Ma's lab website") at NYU, NY, where I have also been an off-site visiting scholar. While in Geneva, I collaborated with the [International Brain Laboratory](https://www.internationalbrainlab.com/). I obtained my PhD at the [Doctoral Training Centre](http://www.anc.ed.ac.uk/dtc/index.php?option=com_content&task=view&id=12&Itemid=68 "Neuroinformatics and Computational Neuroscience DTC website") for computational neuroscience based in Edinburgh, UK, working with [Sethu Vijayakumar](http://homepages.inf.ed.ac.uk/svijayak/ "prof. Sethu Vijayakumar's webpage") and [Daniel Wolpert](https://zuckermaninstitute.columbia.edu/daniel-m-wolpert-phd "prof. Daniel Wolpert's webpage"). I spent several months of my PhD at the [Computational and Biological Learning Lab](http://cbl.eng.cam.ac.uk/Public/Wolpert/WebHome "Wolpertlab website") in Cambridge, UK.
+Previously, I was a postdoc in [Alex Pouget](https://www.unige.ch/medecine/neuf/en/research/grecherche/alexandre-pouget/)‘s lab in Geneva, Switzerland, and with [Wei Ji Ma](https://www.cns.nyu.edu/malab/ "Wei Ji Ma's lab website") at NYU, NY, where I have also been an off-site visiting scholar. While in Geneva, I collaborated with the [International Brain Laboratory](https://www.internationalbrainlab.com/). I obtained my PhD at the [Doctoral Training Centre](http://www.anc.ed.ac.uk/dtc/index.php?option=com_content&task=view&id=12&Itemid=68 "Neuroinformatics and Computational Neuroscience DTC website") for computational neuroscience based in Edinburgh, UK, working with [Sethu Vijayakumar](http://homepages.inf.ed.ac.uk/svijayak/ "prof. Sethu Vijayakumar's webpage") and [Daniel Wolpert](https://zuckermaninstitute.columbia.edu/daniel-m-wolpert-phd "prof. Daniel Wolpert's webpage"). I spent several months of my PhD at the [Computational and Biological Learning Lab](https://cbl.eng.cam.ac.uk/ "CBL website") in Cambridge, UK.
 
 **For up-to-date information about my research, publications, teaching and miscellanea, please visit** [**my group page**](https://www.helsinki.fi/en/researchgroups/machine-and-human-intelligence) **at the University of Helsinki.**
 
 
 #### Page under re-construction...
-
----
-
-Put your address / P.O. box / other info right below your picture. You can also disable any of these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
-
-Link to your social media connections, too. This theme is set up to use [Font Awesome icons](https://fontawesome.com/) and [Academicons](https://jpswalsh.github.io/academicons/), like the ones below. Add your Facebook, Twitter, LinkedIn, Google Scholar, or just disable all of them.
