@@ -11,14 +11,28 @@ profile:
   more_info: >
     <p>555 your office number</p>
     <p>123 your address street</p>
-    <p>Your City, State 12345</p>
+    <p>Helsinki, Finland</p>
 
-news: true # includes a list of news items
-selected_papers: true # includes a list of papers marked as "selected={true}"
-social: true # includes social icons at the bottom of the page
+news: false # includes a list of news items
+selected_papers: false # includes a list of papers marked as "selected={true}"
+social: false # includes social icons at the bottom of the page
 ---
 
-Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
+I am an associate professor at the [Department of Computer Science](https://www.helsinki.fi/en/computer-science) of the University of Helsinki, where I lead the [Machine and Human Intelligence](https://www.helsinki.fi/en/researchgroups/machine-and-human-intelligence) research group. I am also an active member of the [Finnish Center for Artificial Intelligence FCAI](https://fcai.fi/) and of [ELLIS (European Laboratory for Learning and Intelligent Systems)](https://ellis.eu/). 
+
+My research spans:
+
+- **probabilistic machine learning**, with a focus on building efficient methods for statistical inference;
+- **computational and cognitive neuroscience**, with a focus on Bayesian models of perception and resource-constrained rationality.
+
+Previously, I was a postdoc in [Alex Pouget](https://www.unige.ch/medecine/neuf/en/research/grecherche/alexandre-pouget/)‘s lab in Geneva, Switzerland, and with [Wei Ji Ma](http://www.cns.nyu.edu/malab/ "Wei Ji Ma's lab website") at NYU, NY, where I have also been an off-site visiting scholar. While in Geneva, I collaborated with the [International Brain Laboratory](https://www.internationalbrainlab.com/). I obtained my PhD at the [Doctoral Training Centre](http://www.anc.ed.ac.uk/dtc/index.php?option=com_content&task=view&id=12&Itemid=68 "Neuroinformatics and Computational Neuroscience DTC website") for computational neuroscience based in Edinburgh, UK, working with [Sethu Vijayakumar](http://homepages.inf.ed.ac.uk/svijayak/ "prof. Sethu Vijayakumar's webpage") and [Daniel Wolpert](http://cbl.eng.cam.ac.uk/Public/Wolpert/Members "prof. Daniel Wolpert's group webpage"). I spent several months of my PhD at the [Computational and Biological Learning Lab](http://cbl.eng.cam.ac.uk/Public/Wolpert/WebHome "Wolpertlab website") in Cambridge, UK.
+
+**For up-to-date information about my research, publications, teaching and miscellanea, please visit** [**my group page**](https://www.helsinki.fi/en/researchgroups/machine-and-human-intelligence) **at the University of Helsinki.**
+
+
+#### Page under re-construction...
+
+---
 
 Put your address / P.O. box / other info right below your picture. You can also disable any of these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
 
