@@ -8,10 +8,7 @@ profile:
   align: right
   image: luigi-acerbi.png
   image_circular: false # crops the image to make it circular
-  more_info: >
-    <p>Exactum, Room D222</p>
-    <p>Pietari Kalmin katu 5</p>
-    <p>00560 Helsinki, Finland</p>
+  more_info: 
 
 news: false # includes a list of news items
 selected_papers: false # includes a list of papers marked as "selected={true}"
