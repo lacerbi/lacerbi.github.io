@@ -16,6 +16,12 @@ pagination:
     after: 3 # The number of links after the current page
 ---
 
+<style>
+  h1 {
+    font-size: 3rem;
+  }
+</style>
+
 <div class="post">
 
 {% assign blog_name_size = site.blog_name | size %}
