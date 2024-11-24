@@ -10,4 +10,4 @@ tabs: true
 
 ## Hello World
 
-Very creative, congratulations. This is just a test of the new theme.
+Very creative, congratulations. This is just a test of the new theme. Bye.
