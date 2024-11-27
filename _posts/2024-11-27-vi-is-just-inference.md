@@ -92,19 +92,20 @@ Minimizing the KL divergence between $$ q_\psi $$ and $$ p^\star $$ can be achie
 
 $$
 \text{ELBO}(q_\psi) = 
-\underbrace{\int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta}_{\text{Cross-entropy}} 
+\underbrace{\int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta}_{\text{Cross-entropy}} \;
 \underbrace{- \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta}_{\text{Entropy}}.
 $$
 
 First, note that the ELBO only depends on $$ q_\psi $$ and $$ \widetilde{p} $$.
 The ELBO is indeed a lower bound to the log normalization constant, that is $$ \log \mathcal{Z} \ge \text{ELBO}(\psi)$$. It is composed of two terms, a cross-entropy term between $$ q $$ and $$ \widetilde{p} $$ and the **entropy** of $$ q $$. The two terms represent opposing forces:
 
-- The cross-entropy term ensures that $$ q $$ avoids regions where $$ p $$ is low, shrinking towards high-density regions (mode-seeking behavior).
-- The entropy term ensures that $$ q $$ is as spread-out as possible.
+- The (negative) [cross-entropy](https://en.wikipedia.org/wiki/Cross-entropy) term ensures that $$ q $$ avoids regions where $$ p $$ is low, shrinking towards high-density regions (mode-seeking behavior).
+- The [entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) term ensures that $$ q $$ is as spread-out as possible.
 
 In conclusion, in variational inference we want to tweak the parameters $$ \psi $$ of $$ q $$ such that that the approximation $$ q_\psi $$ is as close as possible to $$ p^\star $$, according to the ELBO and, equivalently, to the KL divergence.
 
 {% details Full derivation of the ELBO %}
+
 This is the full derivation of the ELBO, courtesy of `o1-mini` and `gpt-4o` and a bit of editing.
 ---
 
@@ -127,27 +128,12 @@ $$
 Substitute this expression for $$ p^\star(\theta) $$ into the KL divergence:
 
 $$
-\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log \frac{q_\psi(\theta)}{\frac{\widetilde{p}(\theta)}{\mathcal{Z}}} \, d\theta
-$$
-
----
-
-### **Step 3: Simplify the log term**
-Simplify the fraction inside the logarithm:
-
-$$
-\frac{q_\psi(\theta)}{\frac{\widetilde{p}(\theta)}{\mathcal{Z}}} = q_\psi(\theta) \cdot \frac{\mathcal{Z}}{\widetilde{p}(\theta)}
-$$
-
-The KL divergence becomes:
-
-$$
 \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log \left( q_\psi(\theta) \cdot \frac{\mathcal{Z}}{\widetilde{p}(\theta)} \right) \, d\theta
 $$
 
 ---
 
-### **Step 4: Split the logarithm**
+### **Step 3: Split the logarithm**
 Using the property of logarithms $$ \log(ab) = \log(a) + \log(b) $$, split the term inside the integral:
 
 $$
@@ -156,7 +142,7 @@ $$
 
 ---
 
-### **Step 5: Separate the terms**
+### **Step 4: Separate the terms**
 Distribute $$ q_\psi(\theta) $$ over the sum:
 
 $$
@@ -165,7 +151,7 @@ $$
 
 ---
 
-### **Step 6: Simplify the second term**
+### **Step 5: Simplify the second term**
 Since $$ \mathcal{Z} $$ is a constant, $$ \log \mathcal{Z} $$ is also constant and can be factored out of the integral:
 
 $$
@@ -180,7 +166,7 @@ $$
 
 ---
 
-### **Step 7: Substitute back**
+### **Step 6: Substitute back**
 Substitute this simplification back into the KL divergence:
 
 $$
@@ -189,14 +175,8 @@ $$
 
 ---
 
-### **Step 8: Rearrange terms**
-Rearrange the equation to isolate $$ \log \mathcal{Z} $$:
-
-$$
-\log \mathcal{Z} = \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) - \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta + \int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta
-$$
-
-Group terms related to $$ q_\psi(\theta) $$:
+### **Step 7: Rearrange terms**
+Rearrange the equation to isolate $$ \log \mathcal{Z} $$, grouping terms related to $$ q_\psi(\theta) $$:
 
 $$
 \log \mathcal{Z} = \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) + \left( \int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta - \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta \right)
@@ -204,7 +184,7 @@ $$
 
 ---
 
-### **Step 9: Define the ELBO**
+### **Step 8: Define the ELBO**
 The ELBO is defined as:
 
 $$
@@ -219,7 +199,7 @@ $$
 
 ---
 
-### **Step 10: Rearrange for the ELBO**
+### **Step 9: Rearrange for the ELBO**
 Rearranging to isolate $$ \text{ELBO}(q_\psi) $$:
 
 $$
@@ -228,7 +208,7 @@ $$
 
 ---
 
-### **Step 11: Interpretation**
+### **Step 10: Interpretation**
 - $$ \log \mathcal{Z} $$ is a constant with respect to $$ q_\psi(\theta) $$.
 - To minimize $$ \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) $$, we maximize $$ \text{ELBO}(q_\psi) $$.
 
