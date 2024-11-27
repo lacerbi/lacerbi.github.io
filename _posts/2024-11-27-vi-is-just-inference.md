@@ -54,7 +54,7 @@ That is a great question. Why can't we just use the target as is? *Because we ca
 
 Yes, we may be able to evaluate $$ \widetilde{p}(\theta) $$ for any chosen value of $$ \theta $$, but that alone does not tell us much.<d-footnote>Even knowing the normalization constant might not help that much.</d-footnote> What is the shape of this distribution? What are its moments? Its covariance structure? Does it have multiple modes? What is the expectation of an arbitrary function $$ f(\theta) $$ under the target? We may not know any of that!
 
-*One way* to compute these values might be to get samples from the target... but how do we get those? How do we draw samples from the target if we only know an unnormalized $$ \widetilde{p}(\theta) $$?<d-footnote>Yes, one answer is MCMC (Markov Chain Monte Carlo), as surely you know thanks to the MCMC mafia. Point is, there are *other* answers.</d-footnote>
+*One way* to compute these values might be to get samples from the target... but how do we get those? How do we draw samples from the target if we only know an unnormalized $$ \widetilde{p}(\theta) $$?<d-footnote>Yes, one answer is MCMC (Markov Chain Monte Carlo), as surely you know thanks to the MCMC mafia. Point is, there are other answers.</d-footnote>
 
 In short, we have our largely-unusable target and we would like to replace it with something that is easy to use and compute with for all the quantities we care about. There is an imponderable word for that: we want a distribution which is *tractable*.
 
@@ -72,7 +72,7 @@ There is potentially a whole variety of desiderata for a tractable distribution,
 
 So, how does $$ q $$ approximate the target? Intuitively, we want $$ q $$ to be as similar as possible to the *normalized* target $$ p^\star $$.
 
-So we can take a measure of discrepancy between two distributions, and say that we want that discrepancy to be as small as possible. Traditionally, variational inference chooses the reverse [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) as its discrepancy function:
+So we can take a measure of discrepancy between two distributions, and say that we want that discrepancy to be as small as possible. Traditionally, variational inference chooses the reverse [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) as its discrepancy function:<d-footnote>For concreteness, we write the following equations as integrals, but more generally they should be written as expectations (where the notation works for discrete, continuous, and mixed distributions).</d-footnote>
 
 $$
 \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log \frac{q_\psi(\theta)}{p^\star(\theta)} \, d\theta
@@ -86,30 +86,176 @@ Done? Not quite yet.
 
 ## The Evidence Lower BOund (ELBO)
 
-There is a caveat to the logic above: remember that we only have the unnormalized $$ \widetilde{p} $$, we do not have $$ p^\star $$! However, it turns out that this is no problem at all.
+There is a caveat to the logic above: remember that we only have the unnormalized $$ \widetilde{p} $$, we do not have $$ p^\star $$! However, it turns out that this is no problem at all. First, we present the main results, and we will provide a full derivation after.
 
-We can demonstrate (open below if interested) that minimizing the KL divergence between $$ q_\psi $$ and $$ p^\star $$ can be achieved by maximizing the quantity defined as
+Minimizing the KL divergence between $$ q_\psi $$ and $$ p^\star $$ can be achieved by maximizing the so-called ELBO, or Evidence Lower BOund, defined as:
 
 $$
-\text{ELBO}(\psi) = \mathbb{E}_{q_\psi(\theta)}\left[ \log p_\text{target}(\theta)\right] - \mathbb{E}_{q_\psi(\theta)}\left[\log q_\psi(\theta)\right]
+\text{ELBO}(q_\psi) = 
+\underbrace{\int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta}_{\text{Cross-entropy}} 
+\underbrace{- \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta}_{\text{Entropy}}.
 $$
 
-where the ELBO (Evidence Lower BOund) is indeed a lower bound to the log normalization constant, that is $$ \log \mathcal{Z} \ge \text{ELBO}(\psi)$$.
+First, note that the ELBO only depends on $$ q_\psi $$ and $$ \widetilde{p} $$.
+The ELBO is indeed a lower bound to the log normalization constant, that is $$ \log \mathcal{Z} \ge \text{ELBO}(\psi)$$. It is composed of two terms, a cross-entropy term between $$ q $$ and $$ \widetilde{p} $$ and the **entropy** of $$ q $$. The two terms represent opposing forces:
 
-In other words, in variational inference we want to tweak the parameters $$ \psi $$ of $$ q $$ such that that the approximation $$ q_\psi $$ is as close as possible to $$ p^\star $$, according to the ELBO and, equivalently, to the KL divergence.
+- The cross-entropy term ensures that $$ q $$ avoids regions where $$ p $$ is low, shrinking towards high-density regions (mode-seeking behavior).
+- The entropy term ensures that $$ q $$ is as spread-out as possible.
+
+In conclusion, in variational inference we want to tweak the parameters $$ \psi $$ of $$ q $$ such that that the approximation $$ q_\psi $$ is as close as possible to $$ p^\star $$, according to the ELBO and, equivalently, to the KL divergence.
+
+{% details Full derivation of the ELBO %}
+This is the full derivation of the ELBO, courtesy of `o1-mini` and `gpt-4o` and a bit of editing.
+---
+
+### **Step 1: Define the KL divergence**
+The reverse Kullback-Leibler (KL) divergence between $$ q_\psi(\theta) $$ and the normalized target $$ p^\star(\theta) $$ is:
+
+$$
+\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log \frac{q_\psi(\theta)}{p^\star(\theta)} \, d\theta
+$$
+
+---
+
+### **Step 2: Express $$ p^\star(\theta) $$ in terms of $$ \widetilde{p}(\theta) $$**
+The normalized target $$ p^\star(\theta) $$ is related to the unnormalized target $$ \widetilde{p}(\theta) $$ through the normalization constant $$ \mathcal{Z} $$:
+
+$$
+p^\star(\theta) = \frac{\widetilde{p}(\theta)}{\mathcal{Z}}, \quad \text{where} \quad \mathcal{Z} = \int \widetilde{p}(\theta) \, d\theta.
+$$
+
+Substitute this expression for $$ p^\star(\theta) $$ into the KL divergence:
+
+$$
+\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log \frac{q_\psi(\theta)}{\frac{\widetilde{p}(\theta)}{\mathcal{Z}}} \, d\theta
+$$
+
+---
+
+### **Step 3: Simplify the log term**
+Simplify the fraction inside the logarithm:
+
+$$
+\frac{q_\psi(\theta)}{\frac{\widetilde{p}(\theta)}{\mathcal{Z}}} = q_\psi(\theta) \cdot \frac{\mathcal{Z}}{\widetilde{p}(\theta)}
+$$
+
+The KL divergence becomes:
+
+$$
+\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log \left( q_\psi(\theta) \cdot \frac{\mathcal{Z}}{\widetilde{p}(\theta)} \right) \, d\theta
+$$
+
+---
+
+### **Step 4: Split the logarithm**
+Using the property of logarithms $$ \log(ab) = \log(a) + \log(b) $$, split the term inside the integral:
+
+$$
+\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \big( \log q_\psi(\theta) + \log \mathcal{Z} - \log \widetilde{p}(\theta) \big) \, d\theta
+$$
+
+---
+
+### **Step 5: Separate the terms**
+Distribute $$ q_\psi(\theta) $$ over the sum:
+
+$$
+\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta + \int q_\psi(\theta) \log \mathcal{Z} \, d\theta - \int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta
+$$
+
+---
+
+### **Step 6: Simplify the second term**
+Since $$ \mathcal{Z} $$ is a constant, $$ \log \mathcal{Z} $$ is also constant and can be factored out of the integral:
+
+$$
+\int q_\psi(\theta) \log \mathcal{Z} \, d\theta = \log \mathcal{Z} \int q_\psi(\theta) \, d\theta
+$$
+
+Because $$ q_\psi(\theta) $$ is a valid probability distribution, $$ \int q_\psi(\theta) \, d\theta = 1 $$. Therefore:
+
+$$
+\int q_\psi(\theta) \log \mathcal{Z} \, d\theta = \log \mathcal{Z}
+$$
+
+---
+
+### **Step 7: Substitute back**
+Substitute this simplification back into the KL divergence:
+
+$$
+\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta + \log \mathcal{Z} - \int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta
+$$
+
+---
+
+### **Step 8: Rearrange terms**
+Rearrange the equation to isolate $$ \log \mathcal{Z} $$:
+
+$$
+\log \mathcal{Z} = \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) - \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta + \int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta
+$$
+
+Group terms related to $$ q_\psi(\theta) $$:
+
+$$
+\log \mathcal{Z} = \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) + \left( \int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta - \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta \right)
+$$
+
+---
+
+### **Step 9: Define the ELBO**
+The ELBO is defined as:
+
+$$
+\text{ELBO}(q_\psi) = \int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta - \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta
+$$
+
+Substitute this into the equation for $$ \log \mathcal{Z} $$:
+
+$$
+\log \mathcal{Z} = \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) + \text{ELBO}(q_\psi)
+$$
+
+---
+
+### **Step 10: Rearrange for the ELBO**
+Rearranging to isolate $$ \text{ELBO}(q_\psi) $$:
+
+$$
+\text{ELBO}(q_\psi) = \log \mathcal{Z} - \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta))
+$$
+
+---
+
+### **Step 11: Interpretation**
+- $$ \log \mathcal{Z} $$ is a constant with respect to $$ q_\psi(\theta) $$.
+- To minimize $$ \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) $$, we maximize $$ \text{ELBO}(q_\psi) $$.
+
+Thus, **minimizing the KL divergence is equivalent to maximizing the ELBO**.
+
+---
+
+### **Final Relation**
+$$
+\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \log \mathcal{Z} - \text{ELBO}(q_\psi)
+$$
+
+{% enddetails %}
+
 
 ## Variational inference to approximate a target posterior
 
-While variational inference can be performed for any generic target density $$ \widetilde{p}(\theta) $$, the common scenario is that our target density is an unnormalized posterior distribution: 
+While variational inference can be performed for any generic target density $$ \widetilde{p}(\theta) $$, the common scenario is that our target density is an unnormalized *posterior distribution*: 
 
 $$
 \widetilde{p}(\theta) = p(\mathcal{D} \mid \theta) p(\theta) \propto \frac{p(\mathcal{D} \mid \theta) p(\theta)}{p(\mathcal{D})}
 $$
 
-where $$ p(\mathcal{D} \mid \theta) $$ is the likelihood, $$ p(\theta) $$ is the prior, and $$ p(\mathcal{D} \mid \theta) p(\theta) = p(\mathcal{D}, \theta) $$ is the joint distribution. The (unknown) normalization constant here is $\mathcal{Z} \equiv p(\mathcal{D})$, also called the *model evidence* or *marginal likelihood*. In this typical usage-case scenario for variational inference, the ELBO reads
+where $$ p(\mathcal{D} \mid \theta) $$ is the *likelihood*, $$ p(\theta) $$ is the *prior*, and $$ p(\mathcal{D} \mid \theta) p(\theta) = p(\mathcal{D}, \theta) $$ is the joint distribution. The (unknown) normalization constant here is $\mathcal{Z} \equiv p(\mathcal{D})$, also called the *model evidence* or *marginal likelihood*. In this typical usage-case scenario for variational inference, the ELBO reads:
 
 $$
-\text{ELBO}(\psi) = \mathbb{E}_{q_\psi(\theta)}\left[ \log p(\mathcal{D} \mid \theta) p(\theta) \right] - \mathbb{E}_{q_\psi(\theta)}\left[\log q_\psi(\theta)\right]
+\text{ELBO}(q_\psi) = \mathbb{E}_{q_\psi(\theta)}\left[ \log p(\mathcal{D} \mid \theta) p(\theta) \right] - \mathbb{E}_{q_\psi(\theta)}\left[\log q_\psi(\theta)\right]
 $$
 
 where we simply replaced $$ \widetilde{p} $$ with the unnormalized posterior.
