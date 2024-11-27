@@ -86,7 +86,7 @@ Done? Not quite yet.
 
 ## The Evidence Lower BOund (ELBO)
 
-There is a caveat to the logic above: remember that we only have the unnormalized $$ \widetilde{p} $$, we do not have $$ p^\star $$! However, it turns out that this is no problem at all. First, we present the main results, and we will provide a full derivation after.
+There is a caveat to the logic above: remember that we only have the unnormalized $$ \widetilde{p} $$, we do not have $$ p^\star $$! However, it turns out that this is no problem at all. First, we present the main results, and we will provide a full derivation after, but only if you are interested.
 
 Minimizing the KL divergence between $$ q_\psi $$ and $$ p^\star $$ can be achieved by maximizing the so-called ELBO, or Evidence Lower BOund, defined as:
 
@@ -104,9 +104,10 @@ The ELBO is indeed a lower bound to the log normalization constant, that is $$ \
 
 In conclusion, in variational inference we want to tweak the parameters $$ \psi $$ of $$ q $$ such that that the approximation $$ q_\psi $$ is as close as possible to $$ p^\star $$, according to the ELBO and, equivalently, to the KL divergence.
 
-{% details Full derivation of the ELBO %}
+{% details Expand to see the full derivation of the ELBO %}
 
-This is the full derivation of the ELBO, courtesy of `o1-mini` and `gpt-4o` and a bit of editing.
+This is the full derivation of the ELBO, courtesy of `o1-mini` and `gpt-4o`, with just a bit of human editing.
+
 ---
 
 ### **Step 1: Define the KL divergence**
@@ -213,13 +214,6 @@ $$
 - To minimize $$ \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) $$, we maximize $$ \text{ELBO}(q_\psi) $$.
 
 Thus, **minimizing the KL divergence is equivalent to maximizing the ELBO**.
-
----
-
-### **Final Relation**
-$$
-\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \log \mathcal{Z} - \text{ELBO}(q_\psi)
-$$
 
 {% enddetails %}
 
