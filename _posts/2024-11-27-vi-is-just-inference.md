@@ -32,27 +32,35 @@ toc:
 ---
 
 The goal of this post is to show you that variational inference is a very natural way of thinking about Bayesian inference and not some shady approximate method.<d-footnote>Unlike what the MCMC mafia wants you to think.</d-footnote>
-At the end, you will also be able to directly play around with variational inference via an interactive visualization. In fact, you can also just skip the article and go straight to play with the interactive thingie at the bottom.
+At the end, you will also be able to directly play around with variational inference via an interactive visualization. In fact, you can also just skip the article and go straight to play with the interactive thingie at the bottom, and then come back if you feel like it.
 
 ## What is variational inference
 
-Let's start with the textbook definitions. At the core, variational inference is a way to approximate a distribution, the *target* $$ p_\text{target}(\theta) $$. Importantly, the target can be an *unnormalized* probability distribution, with (unknown) normalization constant $$ \mathcal{Z} $$. The target can be continuous or discrete (or mixed), there are no restrictions!
+Let's start with the textbook definitions. We have a *target* distribution
 
-If we go on reading a textbook, it will tell us that variational inference "approximates" the target with a  distribution $$ q_\psi(\theta) $$ parameterized by $$ \psi $$.
+$$
+p^\star(\theta) = \frac{\widetilde{p}(\theta)}{\mathcal{Z}},
+$$
+
+which we know up to its normalization constant $$ \mathcal{Z} $$. At the core, variational inference is a way to approximate $$ p^\star(\theta) $$ having only the ability to evaluate the *unnormalized* target $$ \widetilde{p}(\theta) $$. The target can be continuous or discrete (or mixed), there are no restrictions!
+
+If we go on reading a textbook, it will tell us that variational inference "approximates" the target with a (simpler) distribution $$ q_\psi(\theta) $$ parameterized by $$ \psi $$.
 
 For example, if $$ q $$ is a multivariate normal, $$ \psi $$ could be the mean and covariance matrix of the distribution, $$ \psi = (\mu, \Sigma) $$. Please note that while normal distributions are a common choice in variational inference, they are not the only one -- you could choose $$ q $$ to be *any* distribution of your choice!
 
-### Why do we want to approximate the target?
+### Why do we need to approximate the target?
 
-That is a great question. The point is that we often do not really *know* the target. Yes, we may be able to evaluate $$ p_\text{target}(\theta) $$ for any chosen value of $$ \theta $$, but that alone does not tell us much. What is the shape of this distribution? What are its moments? Its covariance structure? Does it have multiple modes? Quite generally, what is the expectation of an arbitrary function $$ f(\theta) $$ under the target? We don't know any of that!
+That is a great question. Why can't we just use the target as is? *Because we can't.*
 
-*One way* to compute these values might be to get samples from the target... but how do we get those? How do we sample from the target?
+Yes, we may be able to evaluate $$ \widetilde{p}(\theta) $$ for any chosen value of $$ \theta $$, but that alone does not tell us much.<d-footnote>Even knowing $$ \mathcal{Z} $$ might not help that much.</d-footnote> What is the shape of this distribution? What are its moments? Its covariance structure? Does it have multiple modes? What is the expectation of an arbitrary function $$ f(\theta) $$ under the target? We may not know any of that!
 
-In short, we have our largely-unknown target $$ p_\text{target}(\theta) $$ and we would like to replace it with something that is easy to use. There is a magical imponderable word for that: we want our distribution to be *tractable*.
+*One way* to compute these values might be to get samples from the target... but how do we get those? How do we draw samples from the target if we only know an unnormalized $$ \widetilde{p}(\theta) $$?<d-footnote>Yes, one answer is MCMC (Markov Chain Monte Carlo), as surely you know thanks to the MCMC mafia. Point is, there are *other* answers.</d-footnote>
+
+In short, we have our largely-unusable target and we would like to replace it with something that is easy to use and compute with for all the quantities we care about. There is a magical imponderable word for that: we want a distribution which is *tractable*.
 
 ###  Making the target tractable
 
-This is the key of what variational inference does: it takes an intractable target distribution and it gives back a *tractable* one (belonging to a class of our choice). What tractable exactly means is up for discussion, but at the very least we expect these properties:
+This is the key of what variational inference does: it takes an intractable target distribution and it gives back a *tractable* approximation $$ q $$, belonging to a class of our choice. What tractable exactly means is up for discussion, but at the very least we expect these properties:
 
 - $$ q $$ is normalized
 - We can draw samples from $$ q $$
@@ -62,17 +70,31 @@ There is potentially a whole variety of desiderata for a tractable distribution,
 
 ## Variational inference on a general target density
 
-In general, variational inference approximates a target (unnormalized) distribution $$ p_\text{target}(\theta) $$ with a simpler distribution $$ q_\psi(\theta) $$ parameterized by $$ \psi $$.
+So, how does $$ q $$ approximate the target? Intuitively, we want $$ q $$ to be as similar as possible to the *normalized* target $$ p^\star $$.
 
-For example, if $$ q $$ is a multivariate normal, $$ \psi $$ could be the mean and covariance matrix of the distribution, $$ \psi = (\mu, \Sigma) $$. Please note that while normal distributions are a common choice in variational inference, they are not the only one -- you could choose $$ q $$ to be *any* distribution of your choice!
+So we can take a measure of discrepancy between two distributions, and say that we want that discrepancy to be as small as possible. Traditionally, variational inference chooses the reverse [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) as its discrepancy function:
 
-For a given family of approximating distributions $$ q_\psi(\theta) $$, variational inference chooses the best value of the parameters $$ \psi $$ that make $$ q_\psi $$ "as close as possible" to $$ p $$ by maximizing the ELBO (evidence lower bound):  
+$$
+\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log \frac{q_\psi(\theta)}{p^\star{target}(\theta)} \, d\theta
+$$ 
+
+This measures how the approximation $$ q_\psi(\theta) $$ diverges (differs) from the normalized target distribution $$ p^\star(\theta) $$. It is *reverse* because we put the approximation $$ q $$ first (the KL is not symmetric). The *direct* KL divergence would have the "real" target distribution $$ p^\star $$ first.
+
+So for a given family of approximating distributions $$ q_\psi(\theta) $$, variational inference chooses the best value of the parameters $$ \psi $$ that make $$ q_\psi $$ "as close as possible" to $$ p^\star $$ by minimizing the KL divergence between $$ q_\psi $$ and $$ p^\star $$.
+
+## The Evidence Lower BOund (ELBO)
+
+There is a caveat to the logic above: remember that we only have the unnormalized $$ \widetilde{p} $$, we do not have $$ p^\star $$! However, it turns out that this is no problem at all.
+
+We can demonstrate (open below if interested) that minimizing the KL divergence between $$ q_\psi $$ and $$ p^\star $$ can be achieved by maximizing the quantity defined as
 
 $$
 \text{ELBO}(\psi) = \mathbb{E}_{q_\psi(\theta)}\left[ \log p_\text{target}(\theta)\right] - \mathbb{E}_{q_\psi(\theta)}\left[\log q_\psi(\theta)\right]
 $$
 
-It can be shown that maximizing the ELBO is equivalent to minimizing $$ D_\text{KL}(q_\psi \mid\mid p_\text{target}) $$, which is the Kullback-Leibler divergence between $$ q_\psi(\theta) $$ and $$ p_\text{target}(\theta) $$.
+where the ELBO (Evidence Lower BOund) is indeed a lower bound to the log normalization constant, that is $$ \log \mathcal{Z} \ge \text{ELBO}(\psi)$$.
+
+In other words, we can tweak the parameters $$ \psi $$ of $$ q $$ such that that the approximation is as close as possible to $$ p^\star $$, according to the ELBO and, equivalently, to the KL divergence.
 
 ## Variational inference to approximate a target posterior
 
