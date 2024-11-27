@@ -52,15 +52,15 @@ For example, if $$ q $$ is a multivariate normal, $$ \psi $$ could be the mean a
 
 That is a great question. Why can't we just use the target as is? *Because we can't.*
 
-Yes, we may be able to evaluate $$ \widetilde{p}(\theta) $$ for any chosen value of $$ \theta $$, but that alone does not tell us much.<d-footnote>Even knowing $$ \mathcal{Z} $$ might not help that much.</d-footnote> What is the shape of this distribution? What are its moments? Its covariance structure? Does it have multiple modes? What is the expectation of an arbitrary function $$ f(\theta) $$ under the target? We may not know any of that!
+Yes, we may be able to evaluate $$ \widetilde{p}(\theta) $$ for any chosen value of $$ \theta $$, but that alone does not tell us much.<d-footnote>Even knowing the normalization constant might not help that much.</d-footnote> What is the shape of this distribution? What are its moments? Its covariance structure? Does it have multiple modes? What is the expectation of an arbitrary function $$ f(\theta) $$ under the target? We may not know any of that!
 
 *One way* to compute these values might be to get samples from the target... but how do we get those? How do we draw samples from the target if we only know an unnormalized $$ \widetilde{p}(\theta) $$?<d-footnote>Yes, one answer is MCMC (Markov Chain Monte Carlo), as surely you know thanks to the MCMC mafia. Point is, there are *other* answers.</d-footnote>
 
-In short, we have our largely-unusable target and we would like to replace it with something that is easy to use and compute with for all the quantities we care about. There is a magical imponderable word for that: we want a distribution which is *tractable*.
+In short, we have our largely-unusable target and we would like to replace it with something that is easy to use and compute with for all the quantities we care about. There is an imponderable word for that: we want a distribution which is *tractable*.
 
-###  Making the target tractable
+###  Making the intractable tractable
 
-This is the key of what variational inference does: it takes an intractable target distribution and it gives back a *tractable* approximation $$ q $$, belonging to a class of our choice. What tractable exactly means is up for discussion, but at the very least we expect these properties:
+This is the magic of what variational inference does: it takes an intractable target distribution and it gives back a *tractable* approximation $$ q $$, belonging to a class of our choice. What tractable exactly means is up for discussion, but at the very least we expect these properties:
 
 - $$ q $$ is normalized
 - We can draw samples from $$ q $$
@@ -75,12 +75,14 @@ So, how does $$ q $$ approximate the target? Intuitively, we want $$ q $$ to be 
 So we can take a measure of discrepancy between two distributions, and say that we want that discrepancy to be as small as possible. Traditionally, variational inference chooses the reverse [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) as its discrepancy function:
 
 $$
-\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log \frac{q_\psi(\theta)}{p^\star{target}(\theta)} \, d\theta
+\text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) = \int q_\psi(\theta) \log \frac{q_\psi(\theta)}{p^\star(\theta)} \, d\theta
 $$ 
 
 This measures how the approximation $$ q_\psi(\theta) $$ diverges (differs) from the normalized target distribution $$ p^\star(\theta) $$. It is *reverse* because we put the approximation $$ q $$ first (the KL is not symmetric). The *direct* KL divergence would have the "real" target distribution $$ p^\star $$ first.
 
 So for a given family of approximating distributions $$ q_\psi(\theta) $$, variational inference chooses the best value of the parameters $$ \psi $$ that make $$ q_\psi $$ "as close as possible" to $$ p^\star $$ by minimizing the KL divergence between $$ q_\psi $$ and $$ p^\star $$.
+
+Done? Not quite yet.
 
 ## The Evidence Lower BOund (ELBO)
 
@@ -94,23 +96,23 @@ $$
 
 where the ELBO (Evidence Lower BOund) is indeed a lower bound to the log normalization constant, that is $$ \log \mathcal{Z} \ge \text{ELBO}(\psi)$$.
 
-In other words, we can tweak the parameters $$ \psi $$ of $$ q $$ such that that the approximation is as close as possible to $$ p^\star $$, according to the ELBO and, equivalently, to the KL divergence.
+In other words, in variational inference we want to tweak the parameters $$ \psi $$ of $$ q $$ such that that the approximation $$ q_\psi $$ is as close as possible to $$ p^\star $$, according to the ELBO and, equivalently, to the KL divergence.
 
 ## Variational inference to approximate a target posterior
 
-While variational inference could be performed for any generic target density $$ p_\text{target}(\theta) $$, the common scenario is that our target density is an unnormalized posterior distribution: 
+While variational inference can be performed for any generic target density $$ \widetilde{p}(\theta) $$, the common scenario is that our target density is an unnormalized posterior distribution: 
 
 $$
-p_\text{target}(\theta) = p(\mathcal{D} \mid \theta) p(\theta) \propto \frac{p(\mathcal{D} \mid \theta) p(\theta)}{p(\mathcal{D})}
+\widetilde{p}(\theta) = p(\mathcal{D} \mid \theta) p(\theta) \propto \frac{p(\mathcal{D} \mid \theta) p(\theta)}{p(\mathcal{D})}
 $$
 
-where $$ p(\mathcal{D} \mid \theta) p(\theta) = p(\mathcal{D}, \theta) $$ is the joint distribution. The (unknown) normalization constant is $p(\mathcal{D})$, also called the *model evidence* or *marginal likelihood*. In this typical usage-case scenario for variational inference, the ELBO reads
+where $$ p(\mathcal{D} \mid \theta) $$ is the likelihood, $$ p(\theta) $$ is the prior, and $$ p(\mathcal{D} \mid \theta) p(\theta) = p(\mathcal{D}, \theta) $$ is the joint distribution. The (unknown) normalization constant here is $\mathcal{Z} \equiv p(\mathcal{D})$, also called the *model evidence* or *marginal likelihood*. In this typical usage-case scenario for variational inference, the ELBO reads
 
 $$
 \text{ELBO}(\psi) = \mathbb{E}_{q_\psi(\theta)}\left[ \log p(\mathcal{D} \mid \theta) p(\theta) \right] - \mathbb{E}_{q_\psi(\theta)}\left[\log q_\psi(\theta)\right]
 $$
 
-where we simply replaced $$ p_\text{target} $$ with the unnormalized posterior.
+where we simply replaced $$ \widetilde{p} $$ with the unnormalized posterior.
 
 ## Things to know
 
@@ -123,7 +125,7 @@ where we simply replaced $$ p_\text{target} $$ with the unnormalized posterior.
 <iframe
     src="https://lacerbi.github.io/interactive-vi-demo/"
     width="100%"
-    height="500px"
+    height="700px"
     style="border: none;"
     title="Interactive Variational Inference Demo">
 </iframe>
