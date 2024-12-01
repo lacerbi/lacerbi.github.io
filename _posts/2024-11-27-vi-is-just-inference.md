@@ -60,13 +60,13 @@ In short, we have our largely-unusable target and we would like to replace it wi
 
 ###  Making the intractable tractable
 
-This is the magic of what variational inference does: it takes an intractable target distribution and it gives back a *tractable* approximation $$ q $$, belonging to a class of our choice. What tractable exactly means is up for discussion, but at the very least we expect these properties:
+This is the magic of what variational inference does: it takes an intractable target distribution and it gives back a *tractable* approximation $$ q $$, belonging to a class of our choice. We are using here tractable in a loose sense, meaning that at the very least we expect these properties:
 
 - $$ q $$ is normalized
 - We can draw samples from $$ q $$
 - We can evaluate the density of $$ q $$ at any point
 
-There is potentially a whole variety of desiderata for a tractable distribution, and you are encouraged to read Choi et al. (2020)<d-cite key="choi2020probabilistic"></d-cite>.
+There are more precise and nuanced definitions of tractability based on the specific type of probabilistic queries we can compute in polynomial time (e.g., marginals, conditionals, expectations, etc.), and you are encouraged to read Choi et al. (2020)<d-cite key="choi2020probabilistic"></d-cite>.
 
 ## Variational inference on a general target density
 
@@ -84,9 +84,9 @@ So for a given family of approximating distributions $$ q_\psi(\theta) $$, varia
 
 Done? Not quite yet.
 
-## The Evidence Lower BOund (ELBO)
+### The Evidence Lower BOund (ELBO)
 
-There is a caveat to the logic above: remember that we only have the unnormalized $$ \widetilde{p} $$, we do not have $$ p^\star $$! However, it turns out that this is no problem at all. First, we present the main results, and we will provide a full derivation after, but only if you are interested.
+There is a caveat to the logic above: remember that we only have the unnormalized $$ \widetilde{p} $$, we do not have $$ p^\star $$! However, it turns out that this is no problem at all. First, we present the main results, and we will provide a full derivation after, for the interested readers.
 
 Minimizing the KL divergence between $$ q_\psi $$ and $$ p^\star $$ can be achieved by maximizing the so-called ELBO, or Evidence Lower BOund, defined as:
 
@@ -106,7 +106,7 @@ In conclusion, in variational inference we want to tweak the parameters $$ \psi 
 
 {% details Expand to see the full derivation of the ELBO %}
 
-This is the full derivation of the ELBO, courtesy of `o1-mini` and `gpt-4o`, with just a bit of human editing.
+This is the full derivation of the ELBO, courtesy of `o1-mini` and `gpt-4o`, with just a sprinkle of human editing.
 
 ---
 
@@ -159,15 +159,12 @@ $$
 \int q_\psi(\theta) \log \mathcal{Z} \, d\theta = \log \mathcal{Z} \int q_\psi(\theta) \, d\theta
 $$
 
-Because $$ q_\psi(\theta) $$ is a valid probability distribution, $$ \int q_\psi(\theta) \, d\theta = 1 $$. Therefore:
+Because $$ q_\psi(\theta) $$ is a valid, normalized probability distribution, $$ \int q_\psi(\theta) \, d\theta = 1 $$. Therefore:
 
 $$
 \int q_\psi(\theta) \log \mathcal{Z} \, d\theta = \log \mathcal{Z}
 $$
 
----
-
-### **Step 6: Substitute back**
 Substitute this simplification back into the KL divergence:
 
 $$
@@ -176,7 +173,7 @@ $$
 
 ---
 
-### **Step 7: Rearrange terms**
+### **Step 6: Rearrange terms**
 Rearrange the equation to isolate $$ \log \mathcal{Z} $$, grouping terms related to $$ q_\psi(\theta) $$:
 
 $$
@@ -185,7 +182,7 @@ $$
 
 ---
 
-### **Step 8: Define the ELBO**
+### **Step 7: Define the ELBO**
 The ELBO is defined as:
 
 $$
@@ -200,7 +197,7 @@ $$
 
 ---
 
-### **Step 9: Rearrange for the ELBO**
+### **Step 8: Rearrange for the ELBO**
 Rearranging to isolate $$ \text{ELBO}(q_\psi) $$:
 
 $$
@@ -209,38 +206,42 @@ $$
 
 ---
 
-### **Step 10: Interpretation**
+### **Step 9: Interpretation**
 - $$ \log \mathcal{Z} $$ is a constant with respect to $$ q_\psi(\theta) $$.
 - To minimize $$ \text{KL}(q_\psi(\theta) \,\mid\mid\, p^\star(\theta)) $$, we maximize $$ \text{ELBO}(q_\psi) $$.
 
 Thus, **minimizing the KL divergence is equivalent to maximizing the ELBO**.
+
+Moreover, since the $\text{KL}$ divergence is non-negative and zero if $p = q$: 
+- $\text{ELBO}(q_\psi) \le \log \mathcal{Z} \Longrightarrow$ the ELBO is a lower bound to $\log Z$.
+- If $q = p$, $\text{ELBO}(q_\psi) = \log \mathcal{Z}$.
 
 {% enddetails %}
 
 
 ## Variational inference to approximate a target posterior
 
-While variational inference can be performed for any generic target density $$ \widetilde{p}(\theta) $$, the common scenario is that our target density is an unnormalized *posterior distribution*: 
+While variational inference can be performed for any generic target density $$ \widetilde{p}(\theta) $$, the common scenario is that our target density is a *posterior distribution*:
 
 $$
-\widetilde{p}(\theta) = p(\mathcal{D} \mid \theta) p(\theta) \propto \frac{p(\mathcal{D} \mid \theta) p(\theta)}{p(\mathcal{D})}
+{p^\star}(\theta) = \frac{p(\mathcal{D} \mid \theta) \pi(\theta)}{p(\mathcal{D})}
 $$
 
-where $$ p(\mathcal{D} \mid \theta) $$ is the *likelihood*, $$ p(\theta) $$ is the *prior*, and $$ p(\mathcal{D} \mid \theta) p(\theta) = p(\mathcal{D}, \theta) $$ is the joint distribution. The (unknown) normalization constant here is $\mathcal{Z} \equiv p(\mathcal{D})$, also called the *model evidence* or *marginal likelihood*. In this typical usage-case scenario for variational inference, the ELBO reads:
+where you should recognize on the right-hand side good old Bayes' theorem, with $$ p(\mathcal{D} \mid \theta) $$ the *likelihood* and $$ \pi(\theta) $$ the *prior*.<d-footnote>We denote the prior with $\pi$ to avoid confusion with the target.</d-footnote> The normalization constant at the denominator is $\mathcal{Z} \equiv p(\mathcal{D})$, also called the *model evidence* or *marginal likelihood*.
+
+Of course, we almost invariably do **not** know the normalization constant, but we can instead compute the *unnormalized* posterior:
+$$
+\widetilde{p}(\theta) = p(\mathcal{D} \mid \theta) \pi(\theta) 
+$$
+
+In this typical usage-case scenario for variational inference, the ELBO reads:
 
 $$
-\text{ELBO}(q_\psi) = \mathbb{E}_{q_\psi(\theta)}\left[ \log p(\mathcal{D} \mid \theta) p(\theta) \right] - \mathbb{E}_{q_\psi(\theta)}\left[\log q_\psi(\theta)\right]
+\text{ELBO}(q_\psi) = \mathbb{E}_{q_\psi(\theta)}\left[ \log p(\mathcal{D} \mid \theta) \pi(\theta) \right] - \mathbb{E}_{q_\psi(\theta)}\left[\log q_\psi(\theta)\right]
 $$
 
-where we simply replaced $$ \widetilde{p} $$ with the unnormalized posterior.
+where we simply replaced $$ \widetilde{p} $$ with the unnormalized posterior, and we switched here to the expectation notation, instead of integrals, just to show you how that would look like.
 
-## Things to know
-
-- The term $$ \mathbb{E}_{q_\psi(\theta)}\left[ \log p(\theta \mid \mathcal{D}) p(\theta) \right] $$ in the ELBO is the expected log joint.
-- The term $$ -\mathbb{E}_{q_\psi(\theta)}\left[ \log q_\psi(\theta) \right] $$ is the *entropy* of $q_{\psi}(\theta)$, often written as $\mathcal{H}[q]$.
-- Note that the ELBO is a function of $$ \psi $$. The optimization finds the $$ \psi^* $$ that maximizes the ELBO (in practice, the value $$ \psi^* $$ that minimizes the negative ELBO).
-- The ELBO is a lower bound to the log normalization constant of the target density, that is $$ \log p(\mathcal{D}) $$ when the target is the unnormalized posterior.
-- For notational convenience, the dependence of $$ q_\psi(\theta) $$ on $$ \psi $$ is often omitted. Also $$ \psi$ $ is an arbitrary notation, you will find other (Greek) letters to denote the variational parameters.
 
 <iframe
     src="https://lacerbi.github.io/interactive-vi-demo/"
