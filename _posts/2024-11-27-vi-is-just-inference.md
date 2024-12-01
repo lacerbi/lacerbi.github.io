@@ -9,7 +9,7 @@ featured: true
 
 authors:
   - name: Luigi Acerbi
-    url: "https://en.wikipedia.org/wiki/Albert_Einstein"
+    url: "https://lacerbi.github.io/"
     affiliations:
       name: University of Helsinki, Helsinki, Finland
 
@@ -224,14 +224,15 @@ Moreover, since the $\text{KL}$ divergence is non-negative and zero if $p = q$:
 While variational inference can be performed for any generic target density $$ \widetilde{p}(\theta) $$, the common scenario is that our target density is a *posterior distribution*:
 
 $$
-{p^\star}(\theta) = \frac{p(\mathcal{D} \mid \theta) \pi(\theta)}{p(\mathcal{D})}
+{p^\star}(\theta) \equiv p(\theta \mid \mathcal{D}) = \frac{p(\mathcal{D} \mid \theta) \pi(\theta)}{p(\mathcal{D})}
 $$
 
 where you should recognize on the right-hand side good old Bayes' theorem, with $$ p(\mathcal{D} \mid \theta) $$ the *likelihood* and $$ \pi(\theta) $$ the *prior*.<d-footnote>We denote the prior with $\pi$ to avoid confusion with the target.</d-footnote> The normalization constant at the denominator is $\mathcal{Z} \equiv p(\mathcal{D})$, also called the *model evidence* or *marginal likelihood*.
 
-Of course, we almost invariably do **not** know the normalization constant, but we can instead compute the *unnormalized* posterior:
+Of course, we invariably do not know the normalization constant, but we can instead compute the *unnormalized* posterior:
+
 $$
-\widetilde{p}(\theta) = p(\mathcal{D} \mid \theta) \pi(\theta) 
+\widetilde{p}(\theta) = p(\mathcal{D} \mid \theta) \pi(\theta).
 $$
 
 In this typical usage-case scenario for variational inference, the ELBO reads:
