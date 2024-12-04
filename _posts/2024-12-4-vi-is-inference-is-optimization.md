@@ -13,7 +13,7 @@ authors:
     affiliations:
       name: University of Helsinki, Helsinki, Finland
 
-bibliography: 2024-12-4-vi-is-just-inference.bib
+bibliography: 2024-12-4-vi-is-inference-is-optimization.bib
 
 # Optionally, you can add a table of contents to your post.
 # NOTES:
@@ -22,18 +22,17 @@ bibliography: 2024-12-4-vi-is-just-inference.bib
 #   - we may want to automate TOC generation in the future using
 #     jekyll-toc plugin (https://github.com/toshimaru/jekyll-toc).
 toc:
-    # if a section has subsections, you can add them as follows:
-    # subsections:
-    #   - name: Example Child Subsection 1
-    #   - name: Example Child Subsection 2
   - name: What is variational inference?
-  #  - name: Why do we need to approximate the target?
-  #  - name: Making the intractable tractable
+    subsections:
+      - name: Why do we need to approximate the target?
+      - name: Making the intractable tractable
   - name: Variational inference on a general target density
-  #  - name: The Evidence Lower BOund (ELBO)
+    subsections:
+      - name: The Evidence Lower BOund (ELBO)
   - name: Variational inference to approximate a target posterior
   - name: Variational inference is just optimization
-  #  - name: Variational inference is just inference
+    subsections:
+      - name: Variational inference is just inference
   - name: Playing with variational inference
 ---
 
