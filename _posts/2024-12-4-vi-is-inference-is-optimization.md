@@ -268,13 +268,16 @@ Variational inference is often seen as "just an approximation method" -- as oppo
 
 ## Playing with variational inference
 
-In the widget below (full page [here](https://lacerbi.github.io/interactive-vi-demo/)) you can see variational inference for yourself. Move around the distributions (or just lazily press "Optimize") and see the ELBO value go up, getting closer and closer to the true $$ log \mathcal{Z} $$. It is very satisfying.
+In the widget below ([app page](https://lacerbi.github.io/interactive-vi-demo/)) you can see variational inference at work for yourself. Move around the distributions and change their parameters -- or just lazily press *Optimize* -- and see the ELBO value go up, getting closer and closer to the true $$ \log \mathcal{Z} $$, as far as the chosen posterior family allows.
 
+It is very satisfying.
 
 <iframe
     src="https://lacerbi.github.io/interactive-vi-demo/"
     width="100%"
-    height="700px"
+    height="730px"
     style="border: none;"
     title="Interactive Variational Inference Demo">
 </iframe>
+
+Incidentally, I spent way too much time creating this widget, even with the help of Claude. Still, I am pretty happy with the result given that I knew zero JavaScript when I started; and I would not have done it if I had to learn JavaScript just for this. I will probably write a blog post about the process at some point.
