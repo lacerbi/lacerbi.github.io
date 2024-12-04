@@ -2,9 +2,9 @@
 layout: distill
 title: Variational inference is just Bayesian inference
 description: an interactive tutorial on variational inference
-tags: variational-inference
+tags: variational-inference demos
 giscus_comments: false
-date: 2024-11-27
+date: 2024-12-5
 featured: true
 
 authors:
@@ -26,15 +26,19 @@ toc:
     # subsections:
     #   - name: Example Child Subsection 1
     #   - name: Example Child Subsection 2
+  - name: What is variational inference?
+    - name: Why do we need to approximate the target?
+    - name: Making the intractable tractable
   - name: Variational inference on a general target density
+    - name: The Evidence Lower BOund (ELBO)
   - name: Variational inference to approximate a target posterior
   - name: Things to know
 ---
 
-The goal of this post is to show you that variational inference is a very natural way of thinking about Bayesian inference and not some shady approximate method.<d-footnote>Unlike what the MCMC mafia wants you to think.</d-footnote>
+The goal of this post is to show that variational inference is a natural way of thinking about Bayesian inference and not some shady approximate method.<d-footnote>Unlike what the MCMC mafia wants you to think.</d-footnote>
 At the end, you will also be able to directly play around with variational inference via an interactive visualization. In fact, you can also just skip the article and go straight to play with the interactive thingie at the bottom, and then come back if you feel like it.
 
-## What is variational inference
+## What is variational inference?
 
 Let's start with the textbook definitions. We have a *target* distribution
 
