@@ -27,13 +27,13 @@ toc:
     #   - name: Example Child Subsection 1
     #   - name: Example Child Subsection 2
   - name: What is variational inference?
-    - name: Why do we need to approximate the target?
-    - name: Making the intractable tractable
+  #  - name: Why do we need to approximate the target?
+  #  - name: Making the intractable tractable
   - name: Variational inference on a general target density
-    - name: The Evidence Lower BOund (ELBO)
+  #  - name: The Evidence Lower BOund (ELBO)
   - name: Variational inference to approximate a target posterior
   - name: Variational inference is just optimization
-    - name: Variational inference is just inference
+  #  - name: Variational inference is just inference
   - name: Playing with variational inference
 ---
 
