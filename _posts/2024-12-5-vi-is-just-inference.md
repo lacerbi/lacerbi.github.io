@@ -1,7 +1,7 @@
 ---
 layout: distill
-title: Variational inference is just Bayesian inference
-description: an interactive tutorial on variational inference
+title: Variational inference is Bayesian inference is optimization
+description: a tutorial on variational inference and interactive demo
 tags: variational-inference demos
 giscus_comments: false
 date: 2024-12-5
@@ -13,7 +13,7 @@ authors:
     affiliations:
       name: University of Helsinki, Helsinki, Finland
 
-bibliography: 2024-11-27-vi-is-just-inference.bib
+bibliography: 2024-12-5-vi-is-just-inference.bib
 
 # Optionally, you can add a table of contents to your post.
 # NOTES:
@@ -32,11 +32,13 @@ toc:
   - name: Variational inference on a general target density
     - name: The Evidence Lower BOund (ELBO)
   - name: Variational inference to approximate a target posterior
-  - name: Things to know
+  - name: Variational inference is just optimization
+    - name: Variational inference is just inference
+  - name: Playing with variational inference
 ---
 
 The goal of this post is to show that variational inference is a natural way of thinking about Bayesian inference and not some shady approximate method.<d-footnote>Unlike what the MCMC mafia wants you to think.</d-footnote>
-At the end, you will also be able to directly play around with variational inference via an interactive visualization. In fact, you can also just skip the article and go straight to play with the interactive thingie at the bottom, and then come back if you feel like it.
+At the end, you will also be able to directly play around with variational inference via an interactive visualization. In fact, you can also just skip the article and go straight to play with the [interactive thingie at the bottom](), and then come back if you feel like it.
 
 ## What is variational inference?
 
@@ -246,6 +248,28 @@ $$
 $$
 
 where we simply replaced $$ \widetilde{p} $$ with the unnormalized posterior, and we switched here to the expectation notation, instead of integrals, just to show you how that would look like.
+
+## Variational inference is just optimization
+
+Variational inference reduces Bayesian inference to an optimization problem. 
+You have a candidate solution $q$, shake it and twist it and spread it around until you maximize the ELBO.
+Variational inference per se is nothing more than this.
+
+Most variational inference *algorithms* focus on:
+- Specific families of $q$ (e.g., factorized, exponential families, etc.)
+- Specific ways of estimating and optimizing the ELBO (block-wise coordinate updates, stochastic gradient ascent, etc.)
+
+But these are all implementation details.<d-footnote>There are also variational inference methods that use other divergences than the reverse KL divergence, but we lose the meaning of the ELBO as a lower bound to the normalization constant.</d-footnote>
+
+### Variational inference is just inference
+
+For the reasons mentioned above, I believe that variational inference is possibly the most natural way of thinking about Bayesian inference: computing the posterior is not some esoteric procedure, but we are just literally trying to find the distribution that best matches the true target posterior.
+
+Variational inference is often seen as "just an approximation method" -- as opposed to a true technique for performing Bayesian inference -- because historically we were forced to use very simple approximation families. However, it has been a while since we can use very flexible distributions, starting for example from the advent of normalizing flows.
+
+## Playing with variational inference
+
+In the widget below (full page [here](https://lacerbi.github.io/interactive-vi-demo/)) you can see variational inference for yourself. Move around the distributions (or just lazily press "Optimize") and see the ELBO value go up, getting closer and closer to the true $$ log \mathcal{Z} $$. It is very satisfying.
 
 
 <iframe
