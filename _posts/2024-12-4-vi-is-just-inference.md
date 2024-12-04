@@ -4,7 +4,7 @@ title: Variational inference is Bayesian inference is optimization
 description: a tutorial on variational inference and interactive demo
 tags: variational-inference demos
 giscus_comments: false
-date: 2024-12-5
+date: 2024-12-4
 featured: true
 
 authors:
