@@ -13,7 +13,7 @@ authors:
     affiliations:
       name: University of Helsinki, Helsinki, Finland
 
-bibliography: 2024-12-5-vi-is-just-inference.bib
+bibliography: 2024-12-4-vi-is-just-inference.bib
 
 # Optionally, you can add a table of contents to your post.
 # NOTES:
