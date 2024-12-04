@@ -252,13 +252,13 @@ where we simply replaced $$ \widetilde{p} $$ with the unnormalized posterior, an
 
 Variational inference reduces Bayesian inference to an optimization problem. 
 You have a candidate solution $q$, shake it and twist it and spread it around until you maximize the ELBO.
-Variational inference per se is nothing more than this.
+Variational inference per se is nothing more than this.<d-footnote>There are also variational inference methods that use other divergences than the reverse KL divergence, but we lose the meaning of the ELBO as a lower bound to the log normalization constant.</d-footnote>
 
 Most variational inference *algorithms* focus on:
 - Specific families of $q$ (e.g., factorized, exponential families, etc.)
-- Specific ways of estimating and optimizing the ELBO (block-wise coordinate updates, stochastic gradient ascent, etc.)
+- Specific ways of calculating and optimizing the ELBO (block-wise coordinate updates, stochastic gradient ascent, etc.)
 
-But these are all implementation details.<d-footnote>There are also variational inference methods that use other divergences than the reverse KL divergence, but we lose the meaning of the ELBO as a lower bound to the normalization constant.</d-footnote>
+But don't get confused: these are all implementation details. To reiterate, in principle you can just compute the ELBO *however you want* (e.g., by numerical integration, as we will do below), and move things around such that you maximize the ELBO. See Blei et al. (2020)<d-cite key="blei2017variational"></d-cite> for a review of various approaches.
 
 ### Variational inference is just inference
 
@@ -275,9 +275,9 @@ It is very satisfying.
 <iframe
     src="https://lacerbi.github.io/interactive-vi-demo/"
     width="100%"
-    height="730px"
+    height="750px"
     style="border: none;"
     title="Interactive Variational Inference Demo">
 </iframe>
 
-Incidentally, I spent way too much time creating this widget, even with the help of Claude. Still, I am pretty happy with the result given that I knew zero JavaScript when I started; and I would not have done it if I had to learn JavaScript just for this. I will probably write a blog post about the process at some point.
+In the widget above, the ELBO is calculated via numerical integration on a grid centered around each Gaussian component, and the gradient used for optimization is calculated via [finite differences](https://en.wikipedia.org/wiki/Finite_difference). That's it, nothing fancy.<d-footnote>Incidentally, I spent way too much time coding up this widget, even with the help of Claude. Still, I am pretty happy with the result given that I knew zero JavaScript when I started; and I would not have done it if I had to learn JavaScript just for this. I will probably write a blog post about the process at some point.</d-footnote>
