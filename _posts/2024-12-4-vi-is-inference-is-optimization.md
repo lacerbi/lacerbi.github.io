@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: Variational inference is Bayesian inference is optimization
-description: a personal introduction to variational inference with an interactive demo
+description: an intro to variational inference with an interactive demo
 tags: variational-inference demos
 giscus_comments: false
 date: 2024-12-4
@@ -269,7 +269,7 @@ Of course, there are many clever things that can be done in various special case
 
 ### Variational inference is just inference
 
-For the reasons mentioned above, I believe that variational inference is possibly the most natural way of thinking about Bayesian inference: computing the posterior is not some esoteric procedure, but we are just trying to find the distribution that best matches the true target posterior, which we know up to a normalized constant.
+For the reasons mentioned above, I believe that variational inference is possibly the most natural way of thinking about Bayesian inference: computing the posterior is not some esoteric procedure, but we are just trying to find the distribution that best matches the true target posterior, which we know up to a constant.
 
 Variational inference is often seen as "just an approximation method" -- as opposed to a true technique for performing Bayesian inference -- because historically we were forced to use very simple approximation families (factorized, simple Gaussians, etc.). However, it has been a while since we can use very flexible distributions, starting for example from the advent of normalizing flows in the 2010s. See the poignant review paper by Papamakarios et al. (2021).<d-cite key="papamakarios2021normalizing"></d-cite>
 
@@ -296,3 +296,5 @@ It is very satisfying.
 In the widget above, the ELBO is calculated via numerical integration on a grid centered around each Gaussian component, and the gradient used for optimization is calculated via [finite differences](https://en.wikipedia.org/wiki/Finite_difference). That's it, nothing fancy.
 
 Incidentally, I spent way too much time coding up this widget, even with the help of Claude. Still, I am pretty happy with the result given that I knew zero JavaScript when I started; and I would not have done it if I had to learn JavaScript just for this. I will probably write a blog post about the process at some point.
+
+> **I will be hiring postdocs in early 2025 to work on extending Variational Bayesian Monte Carlo<d-cite key="acerbi2018variational,acerbi2020variational"></d-cite> and related topics. If interested, please get in touch -- we can also meet at NeurIPS in Vancouver!**
