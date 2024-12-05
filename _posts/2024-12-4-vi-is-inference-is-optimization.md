@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: Variational inference is Bayesian inference is optimization
-description: an intro to variational inference with an interactive demo
+description: my intro to variational inference with an interactive demo
 tags: variational-inference demos
 giscus_comments: false
 date: 2024-12-4
@@ -29,7 +29,7 @@ toc:
   - name: Variational inference on a general target density
     subsections:
       - name: The Evidence Lower BOund (ELBO)
-  - name: Variational inference to approximate a target posterior
+  - name: Variational inference for Bayesian inference
   - name: Variational inference is just optimization
     subsections:
       - name: Variational inference is just inference
@@ -229,7 +229,7 @@ Moreover, since the $\text{KL}$ divergence is non-negative and zero if $p = q$:
 {% enddetails %}
 
 
-## Variational inference to approximate a target posterior
+## Variational inference for Bayesian inference
 
 While variational inference can be performed for any generic target density $$ \widetilde{p}(\theta) $$, the common scenario is that our target density is a *posterior distribution*:
 
