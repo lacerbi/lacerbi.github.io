@@ -1,11 +1,12 @@
 ---
 layout: distill
 title: Variational inference is Bayesian inference is optimization
-description: my intro to variational inference with an interactive demo
+description: my take on variational inference with an interactive demo
 tags: variational-inference demos
 giscus_comments: false
 date: 2024-12-4
 featured: true
+citation: true
 
 authors:
   - name: Luigi Acerbi
@@ -288,10 +289,11 @@ It is very satisfying.
 <iframe
     src="https://lacerbi.github.io/interactive-vi-demo/"
     width="100%"
-    height="750px"
-    style="border: none;"
+    height="740px"
+    style="border: none; margin-bottom: 40px;"
     title="Interactive Variational Inference Demo">
 </iframe>
+
 
 In the widget above, the ELBO is calculated via numerical integration on a grid centered around each Gaussian component, and the gradient used for optimization is calculated via [finite differences](https://en.wikipedia.org/wiki/Finite_difference). That's it, nothing fancy.
 
