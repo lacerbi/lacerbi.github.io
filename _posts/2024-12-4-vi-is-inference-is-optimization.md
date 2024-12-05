@@ -297,4 +297,4 @@ In the widget above, the ELBO is calculated via numerical integration on a grid 
 
 Incidentally, I spent way too much time coding up this widget, even with the help of Claude. Still, I am pretty happy with the result given that I knew zero JavaScript when I started; and I would not have done it if I had to learn JavaScript just for this. I will probably write a blog post about the process at some point.
 
-> **I will be hiring postdocs in early 2025 to work on extending Variational Bayesian Monte Carlo<d-cite key="acerbi2018variational,acerbi2020variational"></d-cite> and related topics. If interested, please get in touch -- we can also meet at NeurIPS in Vancouver!**
+> I will be hiring postdocs in early 2025 to work on extending Variational Bayesian Monte Carlo<d-cite key="acerbi2018variational"></d-cite><d-cite key="acerbi2020variational"></d-cite> and related topics. If interested, please get in touch -- we can also meet at NeurIPS in Vancouver!
