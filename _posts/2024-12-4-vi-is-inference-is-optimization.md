@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: Variational inference is Bayesian inference is optimization
-description: a tutorial on variational inference and interactive demo
+description: a personal introduction to variational inference with an interactive demo
 tags: variational-inference demos
 giscus_comments: false
 date: 2024-12-4
@@ -37,7 +37,7 @@ toc:
 ---
 
 The goal of this post is to show that variational inference is a natural way of thinking about Bayesian inference and not some shady approximate method.<d-footnote>Unlike what the MCMC mafia wants you to think.</d-footnote>
-At the end, you will also be able to directly play around with variational inference via an interactive visualization. In fact, you can also just skip the article and go straight to play with the [interactive thingie at the bottom](), and then come back if you feel like it.
+At the end, you will be able to play around with variational inference via an interactive visualization. In fact, you can also just skip the article and go straight to play with the [interactive thingie at the bottom](https://lacerbi.github.io/blog/2024/vi-is-inference-is-optimization/#playing-with-variational-inference), and then come back if you feel like it.
 
 ## What is variational inference?
 
@@ -51,21 +51,24 @@ which we know up to its normalization constant $$ \mathcal{Z} $$. At the core, v
 
 If we go on reading a textbook, it will tell us that variational inference "approximates" the target with a (simpler) distribution $$ q_\psi(\theta) $$ parameterized by $$ \psi $$.
 
-For example, if $$ q $$ is a multivariate normal, $$ \psi $$ could be the mean and covariance matrix of the distribution, $$ \psi = (\mu, \Sigma) $$. Please note that while normal distributions are a common choice in variational inference, they are not the only one -- you could choose $$ q $$ to be *any* distribution of your choice!
+For example, if $$ q $$ is a multivariate normal, $$ \psi $$ could be the mean and covariance matrix of the distribution, $$ \psi = (\mu, \Sigma) $$. Please note that while normal distributions are a common choice in variational inference, they are not the only one -- you could choose $$ q $$ to be *any* distribution family of your choice!
 
 ### Why do we need to approximate the target?
 
 That is a great question. Why can't we just use the target as is? *Because we can't.*
 
-Yes, we may be able to evaluate $$ \widetilde{p}(\theta) $$ for any chosen value of $$ \theta $$, but that alone does not tell us much.<d-footnote>Even knowing the normalization constant might not help that much.</d-footnote> What is the shape of this distribution? What are its moments? Its covariance structure? Does it have multiple modes? What is the expectation of an arbitrary function $$ f(\theta) $$ under the target? We may not know any of that!
+Yes, we may be able to evaluate $$ \widetilde{p}(\theta) $$ for any chosen value of $$ \theta $$, but that alone does not tell us much.<d-footnote>Even knowing the normalization constant might not help that much.</d-footnote>
+What is the shape of this distribution? What are its moments? Its covariance structure? Does it have multiple modes?
+What is the expectation of an arbitrary function $$ f(\theta) $$ under the target? What if $\theta$ is a vector and we want to *condition on* or *marginalize out* some values of it?
+We may not know nor be able to do any of that!
 
-*One way* to compute these values might be to get samples from the target... but how do we get those? How do we draw samples from the target if we only know an unnormalized $$ \widetilde{p}(\theta) $$?<d-footnote>Yes, one answer is MCMC (Markov Chain Monte Carlo), as surely you know thanks to the MCMC mafia. Point is, there are other answers.</d-footnote>
+*One way* to compute some of these values (and not even all of them) might be to get samples from the target... but how do we get those? How do we draw samples from the target if we only know an unnormalized $$ \widetilde{p}(\theta) $$?<d-footnote>Yes, one answer is MCMC (Markov Chain Monte Carlo), as surely you know thanks to the MCMC mafia. Point is, there are other answers.</d-footnote>
 
 In short, we have our largely-unusable target and we would like to replace it with something that is easy to use and compute with for all the quantities we care about. There is an imponderable word for that: we want a distribution which is *tractable*.
 
 ###  Making the intractable tractable
 
-This is the magic of what variational inference does: it takes an intractable target distribution and it gives back a *tractable* approximation $$ q $$, belonging to a class of our choice. We are using here tractable in a loose sense, meaning that at the very least we expect these properties:
+This is the magic of what variational inference does: it takes an intractable target distribution and it gives back a *tractable* approximation $$ q $$, belonging to a class of our choice. We are using here tractable in a loose sense, meaning that we expect these minimal properties of a respectable probability distribution:
 
 - $$ q $$ is normalized
 - We can draw samples from $$ q $$
@@ -97,21 +100,23 @@ Minimizing the KL divergence between $$ q_\psi $$ and $$ p^\star $$ can be achie
 
 $$
 \text{ELBO}(q_\psi) = 
-\underbrace{\int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta}_{\text{Cross-entropy}} \;
+\underbrace{\int q_\psi(\theta) \log \widetilde{p}(\theta) \, d\theta}_{\text{Negative cross-entropy}} \;
 \underbrace{- \int q_\psi(\theta) \log q_\psi(\theta) \, d\theta}_{\text{Entropy}}.
 $$
 
 First, note that the ELBO only depends on $$ q_\psi $$ and $$ \widetilde{p} $$.
-The ELBO is indeed a lower bound to the log normalization constant, that is $$ \log \mathcal{Z} \ge \text{ELBO}(\psi)$$. It is composed of two terms, a cross-entropy term between $$ q $$ and $$ \widetilde{p} $$ and the **entropy** of $$ q $$. The two terms represent opposing forces:
+The ELBO takes its name because it is indeed a lower bound to the log normalization constant, that is $$ \log \mathcal{Z} \ge \text{ELBO}(\psi)$$.<d-footnote>The ELBO name makes even more sense as the *evidence* lower bound when we move to the context of Bayesian inference, where the normalization constant is called the *evidence*, as described later in this post.</d-footnote>
 
-- The (negative) [cross-entropy](https://en.wikipedia.org/wiki/Cross-entropy) term ensures that $$ q $$ avoids regions where $$ p $$ is low, shrinking towards high-density regions (mode-seeking behavior).
+The ELBO is composed of two terms, a cross-entropy term between $$ q $$ and $$ \widetilde{p} $$ and the entropy of $$ q $$. The two terms represent opposing forces:
+
+- The negative [cross-entropy](https://en.wikipedia.org/wiki/Cross-entropy) term ensures that $$ q $$ avoids regions where $$ p $$ is low, shrinking towards high-density regions (mode-seeking behavior).
 - The [entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) term ensures that $$ q $$ is as spread-out as possible.
 
 In conclusion, in variational inference we want to tweak the parameters $$ \psi $$ of $$ q $$ such that that the approximation $$ q_\psi $$ is as close as possible to $$ p^\star $$, according to the ELBO and, equivalently, to the KL divergence.
 
 {% details Expand to see the full derivation of the ELBO %}
 
-This is the full derivation of the ELBO, courtesy of `o1-mini` and `gpt-4o`, with just a sprinkle of human editing.
+This is the full derivation of the ELBO, courtesy of `o1-mini` and `gpt-4o`, with just a sprinkle of human magic.
 
 ---
 
@@ -232,9 +237,9 @@ $$
 {p^\star}(\theta) \equiv p(\theta \mid \mathcal{D}) = \frac{p(\mathcal{D} \mid \theta) \pi(\theta)}{p(\mathcal{D})}
 $$
 
-where you should recognize on the right-hand side good old Bayes' theorem, with $$ p(\mathcal{D} \mid \theta) $$ the *likelihood* and $$ \pi(\theta) $$ the *prior*.<d-footnote>We denote the prior with $\pi$ to avoid confusion with the target.</d-footnote> The normalization constant at the denominator is $\mathcal{Z} \equiv p(\mathcal{D})$, also called the *model evidence* or *marginal likelihood*.
+where you should recognize on the right-hand side good old Bayes' theorem, with $$ p(\mathcal{D} \mid \theta) $$ the *likelihood* and $$ \pi(\theta) $$ the *prior*.<d-footnote>We denote the prior with $\pi$ to avoid confusion with the target.</d-footnote> The normalization constant at the denominator is $\mathcal{Z} \equiv p(\mathcal{D})$, also called the *model evidence* or *marginal likelihood*. See Lotfi et al. (2022)<d-cite key="lotfi2022bayesian"></d-cite> for a recent discussion of the marginal likelihood in machine learning.
 
-Of course, we invariably do not know the normalization constant, but we can instead compute the *unnormalized* posterior:
+In essentially all practical scenarios we never know the normalization constant, but we can instead compute the *unnormalized* posterior:
 
 $$
 \widetilde{p}(\theta) = p(\mathcal{D} \mid \theta) \pi(\theta).
@@ -250,25 +255,33 @@ where we simply replaced $$ \widetilde{p} $$ with the unnormalized posterior, an
 
 ## Variational inference is just optimization
 
-Variational inference reduces Bayesian inference to an optimization problem. 
-You have a candidate solution $q$, shake it and twist it and spread it around until you maximize the ELBO.
+In conclusion, variational inference reduces Bayesian inference to an optimization problem. 
+You have a candidate solution $q$, and you shake it and twist it and spread it around until you maximize the ELBO.
 Variational inference per se is nothing more than this.<d-footnote>There are also variational inference methods that use other divergences than the reverse KL divergence, but we lose the meaning of the ELBO as a lower bound to the log normalization constant.</d-footnote>
 
-Most variational inference *algorithms* focus on:
+You may have seen other introductions to or formulations of variational inference that may seem way more complicated. The point is that most variational inference *algorithms* focus on:
 - Specific families of $q$ (e.g., factorized, exponential families, etc.)
 - Specific ways of calculating and optimizing the ELBO (block-wise coordinate updates, stochastic gradient ascent, etc.)
 
-But don't get confused: these are all implementation details. To reiterate, in principle you can just compute the ELBO *however you want* (e.g., by numerical integration, as we will do below), and move things around such that you maximize the ELBO. See Blei et al. (2020)<d-cite key="blei2017variational"></d-cite> for a review of various approaches.
+But don't get confused: these are all *implementation details*. To reiterate, in principle you can just compute the expectation in the ELBO however you want and however it is convenient for you (e.g., by numerical integration, as we will do below), and move things around such that you maximize the ELBO. There is nothing more to it. 
+
+Of course, there are many clever things that can be done in various special cases (including exploiting [variational calculus](https://en.wikipedia.org/wiki/Calculus_of_variations), hence the name), but none of those are necessary to understand variational inference. See Blei et al. (2017)<d-cite key="blei2017variational"></d-cite> for a review of various approaches.
 
 ### Variational inference is just inference
 
-For the reasons mentioned above, I believe that variational inference is possibly the most natural way of thinking about Bayesian inference: computing the posterior is not some esoteric procedure, but we are just literally trying to find the distribution that best matches the true target posterior.
+For the reasons mentioned above, I believe that variational inference is possibly the most natural way of thinking about Bayesian inference: computing the posterior is not some esoteric procedure, but we are just trying to find the distribution that best matches the true target posterior, which we know up to a normalized constant.
 
-Variational inference is often seen as "just an approximation method" -- as opposed to a true technique for performing Bayesian inference -- because historically we were forced to use very simple approximation families. However, it has been a while since we can use very flexible distributions, starting for example from the advent of normalizing flows.
+Variational inference is often seen as "just an approximation method" -- as opposed to a true technique for performing Bayesian inference -- because historically we were forced to use very simple approximation families (factorized, simple Gaussians, etc.). However, it has been a while since we can use very flexible distributions, starting for example from the advent of normalizing flows in the 2010s. See the poignant review paper by Papamakarios et al. (2021).<d-cite key="papamakarios2021normalizing"></d-cite>
+
+But even old-school distributions such as mixtures of Gaussians can go a long way, as long as you use enough components; the difficulty there is to fit them accurately. *For example*,<d-footnote>Self-promotion alert!</d-footnote> our sample-efficient [Variational Bayesian Monte Carlo method](https://acerbilab.github.io/pyvbmc/) uses a mixture of Gaussians with *many* components (up to 50) to achieve pretty-good approximations of the target. We can do that reliably and efficiently because we exploit a Gaussian process approximation of the log target which lets us calculate the cross-entropy term of the ELBO *analytically*, thus yielding very accurate gradients. I will probably write a separate post on this, and more details in Acerbi (2018, 2020).<d-cite key="acerbi2018variational"></d-cite><d-cite key="acerbi2020variational"></d-cite>
 
 ## Playing with variational inference
 
-In the widget below ([app page](https://lacerbi.github.io/interactive-vi-demo/)) you can see variational inference at work for yourself. Move around the distributions and change their parameters -- or just lazily press *Optimize* -- and see the ELBO value go up, getting closer and closer to the true $$ \log \mathcal{Z} $$, as far as the chosen posterior family allows.
+In the widget below ([app page](https://lacerbi.github.io/interactive-vi-demo/)) you can see variational inference at work for yourself. This works best on a computer, some aspects are not ideal on mobile.
+
+You can select the target density as well as the family of variational posterior, from a single Gaussian with different constraints (isotropic, diagonal covariance, full covariance) to various mixtures of Gaussians.
+
+Your job: click and drag around the distributions and change their parameters -- or just lazily press *Optimize* -- and see the ELBO value go up, getting closer and closer to the true $$ \log \mathcal{Z} $$, as far as the chosen posterior family allows.
 
 It is very satisfying.
 
@@ -280,4 +293,6 @@ It is very satisfying.
     title="Interactive Variational Inference Demo">
 </iframe>
 
-In the widget above, the ELBO is calculated via numerical integration on a grid centered around each Gaussian component, and the gradient used for optimization is calculated via [finite differences](https://en.wikipedia.org/wiki/Finite_difference). That's it, nothing fancy.<d-footnote>Incidentally, I spent way too much time coding up this widget, even with the help of Claude. Still, I am pretty happy with the result given that I knew zero JavaScript when I started; and I would not have done it if I had to learn JavaScript just for this. I will probably write a blog post about the process at some point.</d-footnote>
+In the widget above, the ELBO is calculated via numerical integration on a grid centered around each Gaussian component, and the gradient used for optimization is calculated via [finite differences](https://en.wikipedia.org/wiki/Finite_difference). That's it, nothing fancy.
+
+Incidentally, I spent way too much time coding up this widget, even with the help of Claude. Still, I am pretty happy with the result given that I knew zero JavaScript when I started; and I would not have done it if I had to learn JavaScript just for this. I will probably write a blog post about the process at some point.
