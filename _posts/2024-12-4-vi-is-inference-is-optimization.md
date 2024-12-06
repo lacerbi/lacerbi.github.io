@@ -234,18 +234,18 @@ Moreover, since the $\text{KL}$ divergence is non-negative and zero if $p = q$:
 
 Ignoring the fact that $\widetilde{p}(\theta)$ is not normalized, we can obtain the ELBO purely algebraically.
 
-First, let's write the ELBO in terms of the KL divergence:
+First, let's (improperly) write the ELBO in terms of the KL divergence between $q$ and the unnormalized $\widetilde{p}$:
 
 $$ \text{ELBO}(q) = -\text{KL}(q \,\mid\mid\, \widetilde{p})  $$
 
 Then we have four steps:
 
-1. $$ \text{KL}[q \,\mid\mid\, \widetilde{p}] = \text{KL}[q || \mathcal{Z} p^\star] = KL[q \,\mid\mid\, p^\star] - \log \mathcal{Z} $$
+1. $$ \text{KL}[q \,\mid\mid\, \widetilde{p}] = \text{KL}[q || \mathcal{Z} p^\star] = \text{KL}[q \,\mid\mid\, p^\star] - \log \mathcal{Z} $$
 2. $$ \text{KL}[q \,\mid\mid\, p*] = \text{KL}[q \,\mid\mid\, p] + \log \mathcal{Z} $$
 3. $$ \text{KL}[q \,\mid\mid\, p*] = \log \mathcal{Z} - \text{ELBO}(q) $$
-4. $$ \text{ELBO}(q) = \log \mathcal{Z} - KL[q \,\mid\mid\, p*] <= \log \mathcal{Z} $$
+4. $$ \text{ELBO}(q) = \log \mathcal{Z} - \text{KL}[q \,\mid\mid\, p*] <= \log \mathcal{Z} $$
 
-The much longer "full derivation" in the tab above is to avoid using the KL divergence for a non-normalized pdf, which is improper; but it is the same thing.
+The much longer "full derivation" in the tab above is to avoid using the KL divergence for an unnormalized pdf, which is improper; but it is the same thing.
 
 We can famously [derive the ELBO using Jensen's inequality](https://en.wikipedia.org/wiki/Evidence_lower_bound#Deriving_the_ELBO), but it adds an unnecessary and potentially misleading "approximate" step, when we apply the inequality. I prefer the almost trivial derivation above, which shows the relationship between the ELBO and the KL divergence purely algebraically.
 
