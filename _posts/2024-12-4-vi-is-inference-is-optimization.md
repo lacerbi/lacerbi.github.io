@@ -247,7 +247,9 @@ Then we have four steps:
 
 The much longer "full derivation" in the tab above is to avoid using the KL divergence for an unnormalized pdf, which is improper; but it is the same thing.
 
-We can famously [derive the ELBO using Jensen's inequality](https://en.wikipedia.org/wiki/Evidence_lower_bound#Deriving_the_ELBO), but it adds an unnecessary and potentially misleading "approximate" step, when we apply the inequality. I prefer the almost trivial derivation above, which shows the relationship between the ELBO and the KL divergence purely algebraically.<d-footnote>You still need Jensen's to show that the KL divergence is non-negative; but subjectively that feels just a property of the KL instead of being the ELBO doing something shady.</d-footnote>
+We can famously [derive the ELBO using Jensen's inequality](https://en.wikipedia.org/wiki/Evidence_lower_bound#Deriving_the_ELBO), but it adds an unnecessary and potentially misleading "approximate" step, when we apply the inequality. I prefer the almost trivial derivation above, which shows the relationship between the ELBO and the KL divergence purely algebraically. 
+
+(You still need Jensen's to show that the KL divergence is non-negative; but subjectively that feels just a property of the KL instead of being the ELBO doing something shady.)
 
 {% enddetails %}
 
