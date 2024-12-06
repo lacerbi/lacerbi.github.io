@@ -106,7 +106,7 @@ $$
 $$
 
 First, note that the ELBO only depends on $$ q_\psi $$ and $$ \widetilde{p} $$.
-The ELBO takes its name because it is indeed a lower bound to the log normalization constant, that is $$ \log \mathcal{Z} \ge \text{ELBO}(\psi)$$.<d-footnote>The ELBO name makes even more sense as the *evidence* lower bound when we move to the context of Bayesian inference, where the normalization constant is called the *evidence*, as described later in this post.</d-footnote>
+The ELBO takes its name because it is indeed a lower bound to the log normalization constant, that is $$ \log \mathcal{Z} \ge \text{ELBO}(\psi)$$.<d-footnote>The ELBO name will make even more sense as the *evidence* lower bound when we move to the context of Bayesian inference, where the normalization constant is called the *evidence*, as described later in this post.</d-footnote>
 
 The ELBO is composed of two terms, a cross-entropy term between $$ q $$ and $$ \widetilde{p} $$ and the entropy of $$ q $$. The two terms represent opposing forces:
 
@@ -241,13 +241,13 @@ $$ \text{ELBO}(q) = -\text{KL}(q \,\mid\mid\, \widetilde{p})  $$
 Then we have four steps:
 
 1. $$ \text{KL}[q \,\mid\mid\, \widetilde{p}] = \text{KL}[q || \mathcal{Z} p^\star] = \text{KL}[q \,\mid\mid\, p^\star] - \log \mathcal{Z} $$
-2. $$ \text{KL}[q \,\mid\mid\, p*] = \text{KL}[q \,\mid\mid\, p] + \log \mathcal{Z} $$
-3. $$ \text{KL}[q \,\mid\mid\, p*] = \log \mathcal{Z} - \text{ELBO}(q) $$
-4. $$ \text{ELBO}(q) = \log \mathcal{Z} - \text{KL}[q \,\mid\mid\, p*] <= \log \mathcal{Z} $$
+2. $$ \text{KL}[q \,\mid\mid\, p^\star] = \text{KL}[q \,\mid\mid\, p] + \log \mathcal{Z} $$
+3. $$ \text{KL}[q \,\mid\mid\, p^\star] = \log \mathcal{Z} - \text{ELBO}(q) $$
+4. $$ \text{ELBO}(q) = \log \mathcal{Z} - \text{KL}[q \,\mid\mid\, p^\star] <= \log \mathcal{Z} $$
 
 The much longer "full derivation" in the tab above is to avoid using the KL divergence for an unnormalized pdf, which is improper; but it is the same thing.
 
-We can famously [derive the ELBO using Jensen's inequality](https://en.wikipedia.org/wiki/Evidence_lower_bound#Deriving_the_ELBO), but it adds an unnecessary and potentially misleading "approximate" step, when we apply the inequality. I prefer the almost trivial derivation above, which shows the relationship between the ELBO and the KL divergence purely algebraically.
+We can famously [derive the ELBO using Jensen's inequality](https://en.wikipedia.org/wiki/Evidence_lower_bound#Deriving_the_ELBO), but it adds an unnecessary and potentially misleading "approximate" step, when we apply the inequality. I prefer the almost trivial derivation above, which shows the relationship between the ELBO and the KL divergence purely algebraically.<d-footnote>You still need Jensen's to show that the KL divergence is non-negative; but subjectively that feels just a property of the KL instead of being the ELBO doing something shady.</d-footnote>
 
 {% enddetails %}
 
