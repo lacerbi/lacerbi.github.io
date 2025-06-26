@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: You can just predict the optimum
-description: instant Bayesian optimization — kind of
+description: instant Bayesian optimization! (kind of)
 tags: bayesian-optimization amortized-inference meta-learning
 giscus_comments: false
 date: 2025-06-26
@@ -62,7 +62,7 @@ However, simply forcing the function to go through this point is not enough. The
 To guarantee this, we apply a transformation. As detailed in our paper's appendix, we modify the function by adding a convex envelope. We transform all function values $y_i$ like this:
 
 $$
-y\_{i}^{\prime} = y\_{\text{opt}} + \|y\_{i} - y\_{\text{opt}}\| + \frac{1}{5}\|\mathbf{x}\_{\text{opt}} - \mathbf{x}\_{i}\|^{2}
+y_{i}^{\prime} = y_{\text{opt}} + |y_{i} - y_{\text{opt}}| + \frac{1}{5}\|\mathbf{x}_{\text{opt}} - \mathbf{x}_{i}\|^{2}
 $$
 
 Let's break down what this does. The term $y\_{\text{opt}} + \|y\_{i} - y\_{\text{opt}}\|$ is key. If a function value $y\_i$ is already above our chosen optimum $y\_{\text{opt}}$, it remains unchanged. However, if $y\_i$ happens to be *below* the optimum, this term reflects it upwards, placing it *above* $y\_{\text{opt}}$. This ensures that no point in the function has a value lower than our chosen minimum. Then, we add the quadratic "bowl" term that has its lowest point exactly at $\mathbf{x}\_{\text{opt}}$. This bowl smoothly lifts every point of the function, but lifts points farther from $\mathbf{x}\_{\text{opt}}$ more than those nearby. The result is a new function that is guaranteed to have its single global minimum right where we want it.<d-footnote>The implementation in the paper is slightly different but mathematically equivalent: we first generate functions with an optimum at zero, apply a similar transformation, and then add a random vertical offset. The formula here expresses the same idea more directly.</d-footnote>
@@ -93,6 +93,28 @@ In addition to predicting the latent variables, ACE can also predict data, i.e.,
 <figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">ACE can directly predict distributions over the optimum's location $p(x_{\text{opt}}|\mathcal{D})$ and value $p(y_{\text{opt}}|\mathcal{D})$ (left panel). These predictions can be further refined by conditioning on additional information, for example by providing a known value for the optimum $y_{\text{opt}}$ (right panel). Note that the predictions are sensible: for example, in the left panel, the prediction of the value of the optimum (orange distribution) is *equal or below* the lowest observed function value. This is not hard-coded, but entirely learnt by our network! Also note that the conditioning on a known $y_{\text{opt}}$ value in the right panel "pulls down" the function predictions.</figcaption>
 </figure>
 
+## The BO loop with ACE
+
+So we have a model that, given a few observations, can predict a probability distribution over the optimum's location and value. How do we use this to power the classic Bayesian optimization loop?
+
+At each step, we need to decide which point $\mathbf{x}\_{\text{next}}$ to evaluate. This choice is guided by an *acquisition function*. One of the most intuitive acquisition strategies is [Thompson sampling](https://en.wikipedia.org/wiki/Thompson_sampling), which suggests that we should sample our next point from our current belief about where the optimum is. For us, this would mean sampling from $p(\mathbf{x}\_{\text{opt}}|\mathcal{D})$, which we can easily do with ACE.
+
+But there's a subtle trap here. If we just sample from our posterior over the optimum's location, we risk getting stuck. The model's posterior will naturally concentrate around the best point seen so far -- which is a totally sensible belief to hold. However, sampling from it might lead us to repeatedly query points in the same "good" region without ever truly exploring for a *great* one. The goal is to find a *better* point, not just to confirm where we think the current optimum is.
+
+This is where having predictive distributions over both the optimum's location *and* value becomes relevant. With ACE, we can use an enhanced version of Thompson sampling that explicitly encourages exploration (see <d-cite key="dutordoir2023neural"></d-cite> for a related approach):
+
+1.  First, we "imagine" a better outcome. We sample a target value $y\_{\text{opt}}^\star$ from our predictive distribution $p(y\_{\text{opt}}|\mathcal{D})$, but with the crucial constraint that this value must be *lower* than the best value, $y\_{\text{min}}$, observed so far.
+2.  Then, we ask the model: "Given that we're aiming for this new, better score, where should we look?" We then sample the next location $\mathbf{x}\_{\text{next}}$ from the conditional distribution $p(\mathbf{x}\_{\text{opt}}|\mathcal{D}, y\_{\text{opt}}^\star)$.
+
+This two-step process elegantly balances exploitation (by conditioning on data) and exploration (by forcing the model to seek improvement). It's a simple, probabilistic way to drive the search towards new and better regions of the space, as shown in the example below.
+
+While this enhanced Thompson Sampling is powerful and simple, the story doesn't end here. Since ACE gives us access to these explicit predictive distributions, implementing more sophisticated, information-theoretic acquisition functions (like Max-value Entropy Search) becomes much more straightforward than in traditional GP-based BO, which requires complex approximations.
+
+<figure style="text-align: center;">
+<img src="/assets/img/posts/predict-the-optimum/bo-evolution.png" alt="Evolution of ACE's predictions during Bayesian optimization." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 40px;">An example of ACE in action for Bayesian optimization. In each step (from left to right), ACE observes a new point (red asterisk) and updates its beliefs. The orange distribution on the left is the model's prediction for the optimum's *value* ($y_{\text{opt}}$). The red distribution at the bottom is the prediction for the optimum's *location* ($x_{\text{opt}}$), which gets more certain with each observation.</figcaption>
+</figure>
+
 ## What if you already have a good guess?
 
 Predicting the optimum from a few data points is powerful, but what if you're not starting from complete ignorance? Often, you have some domain knowledge. For example, if you are tuning the hyperparameters of a neural network, you might have a strong hunch that the optimal learning rate is more likely to be in the range $[0.0001, 0.01]$ than around $1.0$. This kind of information is called a *prior* in Bayesian terms.
@@ -108,22 +130,12 @@ At runtime, the user can provide a prior distribution over the optimum's locatio
 <figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">ACE can seamlessly incorporate user-provided priors. Left: Without a prior, the posterior over the optimum location is based only on the observed data. Right: An informative prior (light blue) about the optimum's location focuses the model's posterior belief (blue), demonstrating how domain knowledge can guide the optimization process more efficiently.</figcaption>
 </figure>
 
-## Optimum prediction
-
-To make this more concrete, imagine an interactive widget. You would see a blank plot hiding an unknown function. You could click on the plot to "observe" the function at a few points. With each click, a pre-trained ACE model would update its prediction, showing you a probability distribution for the location of the minimum, which would get sharper and more confident as you provide more data.
-
-It would be very satisfying.
-
-<figure style="text-align: center;">
-<img src="/assets/img/posts/predict-the-optimum/bo-evolution.png" alt="Evolution of ACE's predictions during Bayesian optimization." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
-<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 40px;">An example of ACE in action for Bayesian optimization. In each step (from left to right), ACE observes a new point (red asterisk) and updates its beliefs. The orange distribution on the left is the model's prediction for the optimum's *value* ($y_{\text{opt}}$). The red distribution at the bottom is the prediction for the optimum's *location* ($x_{\text{opt}}$), which gets more certain with each observation.</figcaption>
-</figure>
 
 ## Conclusion: A unifying paradigm
 
 The main takeaway is that by being clever about data generation, we can transform traditionally complex inference and reasoning problems into large-scale prediction tasks. This approach unifies seemingly disparate fields. In the ACE paper, we show that the *exact same architecture* can be used for Bayesian optimization, simulation-based inference (predicting simulator parameters from data), and even image completion and classification (predicting class labels or missing pixels).
 
-Everything boils down to conditioning on data and possibly task-relevant latents (or prior information), and predicting data or other task-relevant latent variables, where what the "latent variable" is depends on the task. For example, in BO, as we saw in this blog post, the latents of interest are the location $\mathbf{x}\_{\text{opt}}$ and value $y\_{\text{opt}}$ of the global optimum.
+Everything -- well, *almost* everything -- boils down to conditioning on data and possibly task-relevant latents (or prior information), and predicting data or other task-relevant latent variables, where what the "latent variable" is depends on the task. For example, in BO, as we saw in this blog post, the latents of interest are the location $\mathbf{x}\_{\text{opt}}$ and value $y\_{\text{opt}}$ of the global optimum.
 
 
 <figure style="text-align: center;">
@@ -134,4 +146,10 @@ Everything boils down to conditioning on data and possibly task-relevant latents
 
 This is not to say that traditional methods are obsolete. They provide the theoretical foundation and are indispensable when you can't generate realistic training data. But as our simulators get better and our generative models more powerful, the paradigm of "just predicting" the answer is becoming an increasingly powerful and practical alternative. It's a simple idea, but it has the potential to change how we approach many hard problems in science and engineering.
 
-> The Amortized Conditioning Engine (ACE) is a new, general-purpose framework for these kinds of tasks. The code is available on [GitHub](https://github.com/acerbilab/amortized-conditioning-engine/), and we are actively working on extending it. If you are interested in this line of research, please get in touch!
+<details>
+<summary>Teaser: From prediction only to active search</summary>
+
+Direct prediction is only one part of the story. As we hinted at earlier, a key component of intelligence -- both human and artificial -- isn't just pattern recognition, but also *planning* or *search* (the "thinking" part of modern LLMs and large reasoning models). This module actively decides what to do next to gain the most information. The acquisition strategies we covered are a form of non-amortized planning which is *not* amortized. Conversely, we are working on a more powerful and general framework that tightly integrates amortized inference with amortized active data acquisition. This new system is called [Amortized Active Learning and Inference Engine (ALINE)](https://arxiv.org/abs/2506.07259)<d-cite key="huang2025aline"></d-cite>, where we use reinforcement learning to teach a model not only to predict, but also how to actively *seek* information in an amortized manner. But that's a story for another day. 
+</details>
+
+> The Amortized Conditioning Engine (ACE) is a new, general-purpose framework for these kinds of tasks. On the [paper website](https://acerbilab.github.io/amortized-conditioning-engine/) you can find links to all relevant material including code, and we are actively working on extending the framework. If you are interested in this line of research, please get in touch!
