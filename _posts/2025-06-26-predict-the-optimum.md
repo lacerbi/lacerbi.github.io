@@ -108,7 +108,7 @@ This is where having predictive distributions over both the optimum's location *
 
 This two-step process elegantly balances exploitation (by conditioning on data) and exploration (by forcing the model to seek improvement). It's a simple, probabilistic way to drive the search towards new and better regions of the space, as shown in the example below.
 
-While this enhanced Thompson Sampling is powerful and simple, the story doesn't end here. Since ACE gives us access to these explicit predictive distributions, implementing more sophisticated, information-theoretic acquisition functions (like Max-value Entropy Search or MES) becomes much more straightforward than in traditional GP-based BO, which requires complex approximations.
+While this enhanced Thompson Sampling is powerful and simple, the story doesn't end here. Since ACE gives us access to these explicit predictive distributions, implementing more sophisticated, information-theoretic acquisition functions (like Max-value Entropy Search or MES<d-cite key="wang2017max"></d-cite>) becomes much more straightforward than in traditional GP-based BO, which requires complex approximations.
 
 <figure style="text-align: center;">
 <img src="/assets/img/posts/predict-the-optimum/bo-evolution.png" alt="Evolution of ACE's predictions during Bayesian optimization." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
@@ -152,6 +152,7 @@ This is not to say that traditional methods are obsolete. They provide the theor
 The "just predict it" approach is powerful, but it's not magic -- yet. Here are a few limitations and active research directions to keep in mind:
 
 <ul>
+  <li><b>The need for known latents.</b> The entire "learning from imagination" approach hinges on being able to generate a training dataset with known solutions (the latent variables). For Bayesian optimization, we showed a neat way to generate functions with a known optimum. But for other problems, generating this ground-truth data might be difficult, and you may have first to actually solve the problem for each training example.</li>
   <li><b>The curse of distribution shift.</b> Like any ML model, ACE fails on data that looks nothing like what it was trained on. If you train it on smooth functions and then ask it to optimize something that looks like a wild, jagged mess, its predictions can become unreliable. This "out-of-distribution" problem is a major challenge in ML, and an active area of research.</li>
   <li><b>Scaling.</b> Since ACE is based on a vanilla transformer, it has a well-known scaling problem: the computational cost grows quadratically with the number of data points you feed it. For a few dozen points, it's fast, but for thousands, it becomes sluggish. Luckily, there are tricks from the LLM literature that can be applied.</li>
   <li><b>From specialist to generalist.</b> The current version of ACE is a specialist: you train it for one kind of task (like Bayesian optimization). A major next step is to build a true generalist that can learn to solve many different kinds of problems at once.</li>
