@@ -124,7 +124,7 @@ But there's a subtle trap here. If we just sample from our posterior over the op
 
 This is where having predictive distributions over both the optimum's location *and* value becomes relevant. With ACE, we can use an enhanced version of Thompson sampling that explicitly encourages exploration (see <d-cite key="dutordoir2023neural"></d-cite> for a similar approach):
 
-1.  First, we "imagine" a better outcome. We sample a target value $y\_{\text{opt}}^\star$ from our predictive distribution $p(y\_{\text{opt}}\|\mathcal{D})$, but with the crucial constraint that this value must be *lower* than the best value, $y\_{\text{min}}$, observed so far.
+1.  First, we "imagine" (aka *phantasize*) a better outcome. We sample a target value $y\_{\text{opt}}^\star$ from our predictive distribution $p(y\_{\text{opt}}\|\mathcal{D})$, but with the crucial constraint that this value must be *lower* than the best value, $y\_{\text{min}}$, observed so far.
 2.  Then, we ask the model: "Given that we're aiming for this new, better score, where should we look?" We then sample the next location $\mathbf{x}\_{\text{next}}$ from the conditional distribution $p(\mathbf{x}\_{\text{opt}}\|\mathcal{D}, y\_{\text{opt}}^\star)$.
 
 This two-step process elegantly balances exploitation (by conditioning on data) and exploration (by forcing the model to seek improvement). It's a simple, probabilistic way to drive the search towards new and better regions of the space, as shown in the example below.
