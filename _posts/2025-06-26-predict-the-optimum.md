@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: You can just predict the optimum
-description: how Bayesian optimization (and many other hard problems) can be surprisingly simple -- kind of
+description: instant Bayesian optimization — kind of
 tags: bayesian-optimization amortized-inference meta-learning
 giscus_comments: false
 date: 2025-06-26
@@ -14,7 +14,7 @@ authors:
     affiliations:
       name: University of Helsinki, Helsinki, Finland
 
-bibliography: 2024-12-4-vi-is-inference-is-optimization.bib
+bibliography: 2025-06-26-predict-the-optimum.bib
 ---
 
 [Bayesian optimization](https://distill.pub/2020/bayesian-optimization/) (BO) is one of the pillars of modern machine learning and scientific discovery. It's a standard tool for finding the best hyperparameters for a model, the ideal material composition, or the most effective drug compound. The textbook picture of BO is an elegant and simple loop: fit a probabilistic surrogate model (usually a [Gaussian Process](https://distill.pub/2019/visual-exploration-gaussian-processes/) aka GP) to your observations, then optimize a so-called *acquisition function* to decide where to sample next, rinse and repeat.
