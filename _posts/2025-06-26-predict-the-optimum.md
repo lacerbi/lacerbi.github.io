@@ -17,15 +17,26 @@ authors:
 bibliography: 2025-06-26-predict-the-optimum.bib
 
 toc:
-  - name: "The core idea: learning from imagination"
-  - name: "How to cook up a function with a known optimum"
-  - name: "A transformer that predicts optima"
-  - name: "The BO loop with ACE"
-  - name: "What if you already have a good guess?"
-  - name: "Conclusion: A unifying paradigm"
-    subsections:
-      - name: "Teaser: From prediction only to active search"
+  - name: "The core idea: learning from imagination"
+  - name: "How to cook up a function with a known optimum"
+  - name: "A transformer that predicts optima"
+  - name: "The BO loop with ACE"
+  - name: "What if you already have a good guess?"
+  - name: "Conclusion: A unifying paradigm"
+    subsections:
+      - name: "Teaser: From prediction only to active search"
 ---
+
+<details>
+<summary><b>tl;dr:</b> A 1-minute summary of this post</summary>
+<br>
+<ul>
+  <li><b>The Problem:</b> Standard Bayesian optimization (BO) is powerful for finding optima (e.g., the best hyperparameters for a model), but the classic approach can be complex and inflexible. The loop of fitting a model and choosing where to sample next has many moving parts, and incorporating prior knowledge (an "educated guess") is surprisingly hard.</li>
+  <li><b>The Idea:</b> Instead of this intricate loop, what if we could just <em>predict</em> the optimum directly? We propose reframing optimization as a large-scale prediction problem. We pre-train a transformer model (called ACE) on millions of synthetic optimization problems for which the solution is known in advance.</li>
+  <li><b>How It Works:</b> For a new, unseen function, the model uses its "learned intuition" to directly predict a full probability distribution over the optimum's location and value from just a few initial samples. The key is a novel generative process we developed to create a massive dataset of complex functions with a guaranteed, <em>known</em> global optimum, which is what we need for training.</li>
+  <li><b>Why It's Neat:</b> This "amortized" approach potentially makes optimization much faster at runtime. It simplifies the BO loop and makes it easy to incorporate user knowledge (<em>priors</em>) to guide the search more efficiently. This is a unifying paradigm that connects BO to other machine learning problems like simulation-based inference and image tasks.</li>
+</ul>
+</details>
 
 [Bayesian optimization](https://distill.pub/2020/bayesian-optimization/) (BO) is one of the pillars of modern machine learning and scientific discovery. It's a standard tool for finding the best hyperparameters for a model, the ideal material composition, or the most effective drug compound. The textbook picture of BO is an elegant and simple loop: fit a probabilistic surrogate model (usually a [Gaussian Process](https://distill.pub/2019/visual-exploration-gaussian-processes/) aka GP) to your observations, then optimize a so-called *acquisition function* to decide where to sample next, rinse and repeat.
 
@@ -69,10 +80,10 @@ Then, we generate a function from the GP prior (defined in Step 1) by *condition
 
 However, simply forcing the function to go through this point is not enough. The GP is a flexible, random process; a sample from it might wiggle around and create an even lower minimum somewhere else by chance. To train our model, we need to be *certain* that $(\mathbf{x}\_{\text{opt}}, y\_{\text{opt}})$ is the true global optimum.
 
-To guarantee this, we apply a transformation. As detailed in our paper's appendix, we modify the function by adding a convex envelope. We transform all function values $y_i$ like this:
+To guarantee this, we apply a transformation. As detailed in our paper's appendix, we modify the function by adding a *convex envelope*. We transform all function values $y_i$ like this:
 
 $$
-y_{i}^{\prime} = y_{\text{opt}} + |y_{i} - y_{\text{opt}}| + \frac{1}{5}\|\mathbf{x}_{\text{opt}} - \mathbf{x}_{i}\|^{2}
+y_{i}^{\prime} = y_{\text{opt}} + |y_{i} - y_{\text{opt}}| + \frac{1}{5}\|\mathbf{x}_{\text{opt}} - \mathbf{x}_{i}\|^{2}.
 $$
 
 Let's break down what this does. The term $y\_{\text{opt}} + \|y\_{i} - y\_{\text{opt}}\|$ is key. If a function value $y\_i$ is already above our chosen optimum $y\_{\text{opt}}$, it remains unchanged. However, if $y\_i$ happens to be *below* the optimum, this term reflects it upwards, placing it *above* $y\_{\text{opt}}$. This ensures that no point in the function has a value lower than our chosen minimum. Then, we add the quadratic "bowl" term that has its lowest point exactly at $\mathbf{x}\_{\text{opt}}$.<d-footnote>The $1/5$ is a magic number that governs the curvature of the bowl; you can change it.</d-footnote> This bowl smoothly lifts every point of the function, but lifts points farther from $\mathbf{x}\_{\text{opt}}$ more than those nearby. The result is a new function that is guaranteed to have its single global minimum right where we want it.<d-footnote>The implementation in the paper is slightly different but mathematically equivalent: we first generate functions with an optimum at zero, apply a similar transformation, and then add a random vertical offset. The formula here expresses the same idea more directly.</d-footnote>
@@ -87,7 +98,7 @@ By repeating this recipe millions of times, we can build a massive, diverse data
 
 <figure style="text-align: center;">
 <img src="/assets/img/posts/predict-the-optimum/generating-functions.png" alt="Examples of one-dimensional functions generated for training ACE." style="width:100%; max-width: 600px; margin-left: auto; margin-right: auto; display: block;">
-<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">A few examples of one-dimensional functions with a known global optimum (red dot) from our training dataset. We can generate a virtually infinite number of such functions in any dimension, with varying degrees of complexity.</figcaption>
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">Examples of one-dimensional functions with a known global optimum (red dot) from our training dataset. We can quickly generate a virtually infinite number of such functions in any dimension, with varying degrees of complexity.</figcaption>
 </figure>
 
 ## A transformer that predicts optima
@@ -96,7 +107,7 @@ Once you have this dataset, the rest is fairly standard machine learning. We fee
 
 Because ACE is a transformer, it uses the attention mechanism to see the relationships between the context points and we set it up to output a full predictive distribution for the optimum, not just a single point estimate. This means we get uncertainty estimates for free, which is crucial for any Bayesian approach.
 
-In addition to predicting the latent variables, ACE can also predict data, i.e., function values $y^\star$ at any target point $\mathbf{x}^\star$, following the recipe of similar models such as the Transformer Neural Process (TNPs)<d-cite key="nguyen2022transformer"></d-cite> and Prior-Fitted Networks (PFNs)<d-cite key="muller2022transformers"></d-cite>. ACE differs from these previous models in that it is the first architecture to explicitly predict latent variables for the task of interest -- such as the optimum location and value in BO --, and not just data points.
+In addition to predicting the latent variables, ACE can also predict data, i.e., function values $y^\star$ at any target point $\mathbf{x}^\star$, following the recipe of similar models such as the Transformer Neural Process (TNP)<d-cite key="nguyen2022transformer"></d-cite> and Prior-Fitted Networks (PFNs)<d-cite key="muller2022transformers"></d-cite>. ACE differs from these previous models in that it is the first architecture that allows the user to explicitly condition on and predict latent variables for the task of interest -- such as the optimum location and value in BO --, and not just data points.
 
 <figure style="text-align: center;">
 <img src="/assets/img/posts/predict-the-optimum/bo-prediction-conditioning.png" alt="ACE predicting the optimum location and value in Bayesian Optimization." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
@@ -133,7 +144,7 @@ Incorporating priors into the standard Bayesian optimization loop is surprisingl
 
 This is another area where an amortized approach shines. Because we control the training data generation, we can teach ACE not only to predict the optimum but also how to listen to and use a prior. During its training, we don't just show ACE functions; we also provide it with various "hunches" (priors of different shapes and strengths) about where the optimum might be for those functions, or for its value. By seeing millions of examples, ACE learns to combine the information from the observed data points with the hint provided by the prior.
 
-At runtime, the user can provide a prior distribution over the optimum's location, $p(\mathbf{x}\_{\text{opt}})$, or value $p(y\_{\text{opt}})$, as a simple histogram. ACE then seamlessly integrates this information to produce a more informed (and more constrained) prediction for the optimum. This allows for even faster convergence, as the model doesn't waste time exploring regions that the user already knows are unpromising. Instead of being a complex add-on, incorporating prior knowledge becomes another natural part of the prediction process.
+At runtime, the user can provide a prior distribution over the optimum's location, $p(\mathbf{x}\_{\text{opt}})$, or value $p(y\_{\text{opt}})$, as a simple histogram across each dimension. ACE then seamlessly integrates this information to produce a more informed (and more constrained) prediction for the optimum. This allows for even faster convergence, as the model doesn't waste time exploring regions that the user already knows are unpromising. Instead of being a complex add-on, incorporating prior knowledge becomes another natural part of the prediction process.
 
 <figure style="text-align: center;">
 <img src="/assets/img/posts/predict-the-optimum/bo-with-prior.png" alt="Comparison of Bayesian optimization with and without an informative prior on the optimum location." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
@@ -171,9 +182,9 @@ The "just predict it" approach is powerful, but it's not magic -- yet. Here are 
 
 ### Teaser: From prediction only to active search
 
-Direct prediction is only one part of the story. As we hinted at earlier, a key component of intelligence -- both human and artificial -- isn't just pattern recognition, but also *planning* or *search* (the "thinking" part of modern LLMs and large reasoning models). This module actively decides what to do next to gain the most information. The acquisition strategies we covered are a form of non-amortized planning which is *not* amortized. Conversely, we are working on a more powerful and general framework that tightly integrates amortized inference with amortized active data acquisition. This new system is called [Amortized Active Learning and Inference Engine (ALINE)](https://arxiv.org/abs/2506.07259)<d-cite key="huang2025aline"></d-cite>, where we use reinforcement learning to teach a model not only to predict, but also how to actively *seek* information in an amortized manner. But that's a story for another day. 
+Direct prediction is only one part of the story. As we hinted at earlier, a key component of intelligence -- both human and artificial -- isn't just pattern recognition, but also *planning* or *search* (the "thinking" part of modern LLMs and large reasoning models). This module actively decides what to do next to gain the most information. The acquisition strategies we covered are a form of planning which is *not* amortized. Conversely, we have been working on a more powerful and general framework that tightly integrates amortized inference with amortized active data acquisition. This new system is called [Amortized Active Learning and Inference Engine (ALINE)](https://arxiv.org/abs/2506.07259)<d-cite key="huang2025aline"></d-cite>, where we use reinforcement learning to teach a model not only to predict, but also how to actively *seek* information in an amortized manner. But that's a story for another day. 
 
-> The Amortized Conditioning Engine (ACE) is a new, general-purpose framework for these kinds of prediction tasks. On the [paper website](https://acerbilab.github.io/amortized-conditioning-engine/) you can find links to all relevant material including code, and we are actively working on extending the framework in manifold ways. If you are interested in this line of research, please get in touch!
+> The Amortized Conditioning Engine (ACE) is a new, general-purpose framework for multiple kinds of prediction tasks. On the [paper website](https://acerbilab.github.io/amortized-conditioning-engine/) you can find links to all relevant material including code, and we are actively working on extending the framework in manifold ways. If you are interested in this line of research, please get in touch!
 
 <div style="padding: 1.5em; margin-top: 2em; margin-bottom: 2em; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
 <b>Acknowledgments.</b> This post was written with the assistance of Google's Gemini 2.5 Pro using <a href="https://athanor.works">Athanor</a>, the open-source workbench for AI-assisted coding and writing.
