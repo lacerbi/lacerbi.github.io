@@ -165,7 +165,7 @@ Everything -- well, *almost* everything -- boils down to conditioning on data an
 </figure>
 
 
-This is not to say that traditional methods are obsolete. They provide the theoretical foundation and are indispensable when you can't generate realistic training data. But as our simulators get better and our generative models more powerful, the paradigm of "just predicting" the answer is becoming an increasingly powerful and practical alternative -- see for example this recent position paper<d-cite key="muller2025position"></d-cite>, which makes similar points. Overall, it's a simple idea, but it has the potential to change how we approach many hard problems in science and engineering.
+This is not to say that traditional methods are obsolete. They provide the theoretical foundation and are indispensable when you can't generate realistic training data. But as our simulators get better and our generative models more powerful, the paradigm of "just predicting" the answer is becoming an increasingly powerful and practical alternative -- see for example this recent position paper<d-cite key="muller2025position"></d-cite>, which makes similar points. Overall, it's a simple idea, but it has the potential to change how we approach many hard problems in science and engineering. 
 
 <details>
 <summary>Of course, there are some caveats...</summary>
