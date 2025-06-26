@@ -4,7 +4,7 @@ title: You can just predict the optimum
 description: how Bayesian optimization (and many other hard problems) can be surprisingly simple -- kind of
 tags: bayesian-optimization amortized-inference meta-learning
 giscus_comments: false
-date: 2025-06-25
+date: 2025-06-26
 featured: true
 citation: true
 
@@ -24,7 +24,7 @@ While BO can be very fast nowadays and with solid implementations such as [BOtor
 **But what if, instead of all this, we could just... predict the optimum?**
 
 The core idea I want to discuss is this: if we are smart about it, we can reframe the entire task of optimization as a straightforward prediction problem.<d-footnote>With the inevitable caveats, which we will cover later.</d-footnote>
-Given a few samples from a function, we can train a neural network to directly output a probability distribution over the location $\mathbf{x}_{\text{opt}}$ and value $y_{\text{opt}}$ of the global optimum. This is one of the key applications of our recent work on the [Amortized Conditioning Engine (ACE)](https://acerbilab.github.io/amortized-conditioning-engine/)<d-cite key="chang2025amortized"></d-cite>.
+Given a few samples from a function, we can train a neural network to directly output a probability distribution over the location $\mathbf{x}\_{\text{opt}}$ and value $y\_{\text{opt}}$ of the global optimum. This is one of the key applications of our recent work on the [Amortized Conditioning Engine (ACE)](https://acerbilab.github.io/amortized-conditioning-engine/)<d-cite key="chang2025amortized"></d-cite>.
 
 ## The core idea: learning from imagination
 
