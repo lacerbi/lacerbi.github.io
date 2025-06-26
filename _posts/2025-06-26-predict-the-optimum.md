@@ -175,10 +175,6 @@ Direct prediction is only one part of the story. As we hinted at earlier, a key 
 
 > The Amortized Conditioning Engine (ACE) is a new, general-purpose framework for these kinds of prediction tasks. On the [paper website](https://acerbilab.github.io/amortized-conditioning-engine/) you can find links to all relevant material including code, and we are actively working on extending the framework in manifold ways. If you are interested in this line of research, please get in touch!
 
-#### Acknowledgments
-
-This post was written with the assistance of Google's Gemini 2.5 Pro using [Athanor](https://athanor.works), the open-source workbench for AI-assisted coding and technical writing.
-
 <div style="padding: 1.5em; margin-top: 2em; margin-bottom: 2em; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
-<b>Acknowledgments.</b> This post was written with the assistance of Google's Gemini 2.5 Pro using [Athanor](https://athanor.works), the open-source workbench for AI-assisted coding and technical writing.
+<b>Acknowledgments.</b> This post was written with the assistance of Google's Gemini 2.5 Pro using <a href="https://athanor.works">Athanor</a>, the open-source workbench for AI-assisted coding and technical writing.
 </div>
