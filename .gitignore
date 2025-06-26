@@ -11,3 +11,12 @@ assets/libs/
 node_modules/
 vendor
 .idea
+/temp
+
+###############################################################################
+# ATHANOR PROJECT FILES
+###############################################################################
+/.ath_materials/**/*
+!/.ath_materials/prompts/
+!/.ath_materials/prompts/**/*
+!/.ath_materials/project_settings.json
