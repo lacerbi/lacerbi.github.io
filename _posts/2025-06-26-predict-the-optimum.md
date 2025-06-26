@@ -76,6 +76,11 @@ With the function's shape secured, we simply sample the data points (the `(x, y)
 
 By repeating this recipe millions of times, we can build a massive, diverse dataset of `(function, optimum)` pairs. The hard work is done. Now, we just need to learn from it.
 
+<figure style="text-align: center;">
+<img src="/assets/img/posts/predict-the-optimum/generating-functions.png" alt="Examples of one-dimensional functions generated for training ACE." style="width:100%; max-width: 600px; margin-left: auto; margin-right: auto; display: block;">
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">A few examples of one-dimensional functions with a known global optimum (red dot) from our training dataset. We can generate a virtually infinite number of such functions in any dimension, with varying degrees of complexity.</figcaption>
+</figure>
+
 ## A transformer that predicts optima
 
 Once you have this dataset, the rest is almost standard machine learning. We feed our model, ACE, a "context set" consisting of a few observed `(x, y)` pairs from a function. The model's task is to predict the latent variables we care about: $\mathbf{x}_{\text{opt}}$ and $y_{\text{opt}}$. "Latent" here is taken from the language of probabilistic modeling, and simply means "unknown", as opposed to the *observed* function values.
@@ -83,6 +88,11 @@ Once you have this dataset, the rest is almost standard machine learning. We fee
 Because ACE is a transformer, it uses the attention mechanism to see the relationships between the context points and produces a full predictive distribution for the optimum, not just a single point estimate. This means we get uncertainty estimates for free, which is crucial for any Bayesian approach.
 
 In addition to predicting the latent variables, ACE can also predict data, i.e., function values $y^\star$ at any target point $\mathbf{x}^\star$, following the recipe of similar models such as the Transformer Neural Process (TNPs)<d-cite key="nguyen2022transformer"></d-cite> and Prior-Fitted Networks (PFNs)<d-cite key="muller2022transformers"></d-cite>. ACE differs from these previous models in that it is the first architecture to explicitly predict latent variables for the task of interest, and not just data points.
+
+<figure style="text-align: center;">
+<img src="/assets/img/posts/predict-the-optimum/bo-prediction-conditioning.png" alt="ACE predicting the optimum location and value in Bayesian Optimization." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">ACE can directly predict distributions over the optimum's location $p(x_{\text{opt}}|\mathcal{D})$ and value $p(y_{\text{opt}}|\mathcal{D})$ (left panel). These predictions can be further refined by conditioning on additional information, for example by providing a known value for the optimum $y_{\text{opt}}$ (right panel).</figcaption>
+</figure>
 
 ## What if you already have a good guess?
 
@@ -94,23 +104,28 @@ This is another area where an amortized approach shines. Because we control the 
 
 At runtime, the user can provide a prior distribution over the optimum's location, $p(\mathbf{x}_{\text{opt}})$, or value $p(y_{\text{opt}})$, as a simple histogram. ACE then seamlessly integrates this information to produce a more informed (and more constrained) prediction for the optimum. This allows for even faster convergence, as the model doesn't waste time exploring regions that the user already knows are unpromising. Instead of being a complex add-on, incorporating prior knowledge becomes another natural part of the prediction process.
 
-## Playing with optimum prediction
+<figure style="text-align: center;">
+<img src="/assets/img/posts/predict-the-optimum/bo-with-prior.png" alt="Comparison of Bayesian optimization with and without an informative prior on the optimum location." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">ACE can seamlessly incorporate user-provided priors. Left: Without a prior, the posterior over the optimum location is based only on the observed data. Right: An informative prior (light blue) about the optimum's location focuses the model's posterior belief (blue), demonstrating how domain knowledge can guide the optimization process more efficiently.</figcaption>
+</figure>
+
+## Optimum prediction
 
 To make this more concrete, imagine an interactive widget. You would see a blank plot hiding an unknown function. You could click on the plot to "observe" the function at a few points. With each click, a pre-trained ACE model would update its prediction, showing you a probability distribution for the location of the minimum, which would get sharper and more confident as you provide more data.
 
 It would be very satisfying.
 
-<iframe
-    src="https://lacerbi.github.io/interactive-bo-demo/"
-    width="100%"
-    height="500px"
-    style="border: 1px solid #ccc; margin-bottom: 40px;"
-    title="Interactive Bayesian Optimization Demo">
-</iframe>
-
-<div style="text-align: center; font-style: italic; margin-top: -30px; margin-bottom: 40px;">(Note: This is a placeholder for a future interactive demo!)</div>
+<figure style="text-align: center;">
+<img src="/assets/img/posts/predict-the-optimum/bo-evolution.png" alt="Evolution of ACE's predictions during Bayesian optimization." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 40px;">An example of ACE in action for Bayesian optimization. In each step (from left to right), ACE observes a new point (red asterisk) and updates its beliefs. The orange distribution on the left is the model's prediction for the optimum's *value* ($y_{\text{opt}}$). The red distribution at the bottom is the prediction for the optimum's *location* ($x_{\text{opt}}$), which gets more certain with each observation.</figcaption>
+</figure>
 
 ## Conclusion: A unifying paradigm
+
+<figure style="text-align: center;">
+<img src="/assets/img/posts/predict-the-optimum/ace-tasks-compact.png" alt="Diagram showing ACE as a unifying paradigm for different ML tasks." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">The ACE framework. Many tasks, like image completion (a), Bayesian optimization (b), and simulation-based inference (c), can be framed as problems of probabilistic conditioning and prediction over data and latent variables.</figcaption>
+</figure>
 
 The main takeaway is that by being clever about data generation, we can transform traditionally complex inference and reasoning problems into large-scale prediction tasks. This approach unifies seemingly disparate fields. In the ACE paper, we show that the *exact same architecture* can be used for Bayesian optimization, simulation-based inference (predicting simulator parameters from data), and even image completion and classification (predicting class labels or missing pixels).
 
