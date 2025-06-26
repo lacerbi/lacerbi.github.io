@@ -101,7 +101,7 @@ Incorporating priors into the standard Bayesian optimization loop is surprisingl
 
 This is another area where an amortized approach shines. Because we control the training data generation, we can teach ACE not only to predict the optimum but also how to listen to and use a prior. During its training, we don't just show ACE functions; we also provide it with various "hunches" (priors of different shapes and strengths) about where the optimum might be for those functions, or for its value. By seeing millions of examples, ACE learns to combine the information from the observed data points with the hint provided by the prior.
 
-At runtime, the user can provide a prior distribution over the optimum's location, $p(\mathbf{x}_{\text{opt}})$, or value $p(y_{\text{opt}})$, as a simple histogram. ACE then seamlessly integrates this information to produce a more informed (and more constrained) prediction for the optimum. This allows for even faster convergence, as the model doesn't waste time exploring regions that the user already knows are unpromising. Instead of being a complex add-on, incorporating prior knowledge becomes another natural part of the prediction process.
+At runtime, the user can provide a prior distribution over the optimum's location, $p(\mathbf{x}]_{\text{opt}})$, or value $p(y]_{\text{opt}})$, as a simple histogram. ACE then seamlessly integrates this information to produce a more informed (and more constrained) prediction for the optimum. This allows for even faster convergence, as the model doesn't waste time exploring regions that the user already knows are unpromising. Instead of being a complex add-on, incorporating prior knowledge becomes another natural part of the prediction process.
 
 <figure style="text-align: center;">
 <img src="/assets/img/posts/predict-the-optimum/bo-with-prior.png" alt="Comparison of Bayesian optimization with and without an informative prior on the optimum location." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
@@ -121,12 +121,16 @@ It would be very satisfying.
 
 ## Conclusion: A unifying paradigm
 
+The main takeaway is that by being clever about data generation, we can transform traditionally complex inference and reasoning problems into large-scale prediction tasks. This approach unifies seemingly disparate fields. In the ACE paper, we show that the *exact same architecture* can be used for Bayesian optimization, simulation-based inference (predicting simulator parameters from data), and even image completion and classification (predicting class labels or missing pixels).
+
+Everything boils down to conditioning on data and possibly task-relevant latents (or prior information), and predicting data or other task-relevant latent variables, where what the "latent variable" is depends on the task. For example, in BO, as we saw in this blog post, the latents of interest are the location $\mathbf{x}\_{\text{opt}}$ and value $y\_{\text{opt}}$ of the global optimum.
+
+
 <figure style="text-align: center;">
-<img src="/assets/img/posts/predict-the-optimum/ace-tasks-compact.png" alt="Diagram showing ACE as a unifying paradigm for different ML tasks." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
+<img src="/assets/img/posts/predict-the-optimum/ace-tasks-compact.png" alt="Diagram showing ACE as a unifying paradigm for different ML tasks." style="width:80%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
 <figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">The ACE framework. Many tasks, like image completion (a), Bayesian optimization (b), and simulation-based inference (c), can be framed as problems of probabilistic conditioning and prediction over data and latent variables.</figcaption>
 </figure>
 
-The main takeaway is that by being clever about data generation, we can transform traditionally complex inference and reasoning problems into large-scale prediction tasks. This approach unifies seemingly disparate fields. In the ACE paper, we show that the *exact same architecture* can be used for Bayesian optimization, simulation-based inference (predicting simulator parameters from data), and even image completion and classification (predicting class labels or missing pixels).
 
 This is not to say that traditional methods are obsolete. They provide the theoretical foundation and are indispensable when you can't generate realistic training data. But as our simulators get better and our generative models more powerful, the paradigm of "just predicting" the answer is becoming an increasingly powerful and practical alternative. It's a simple idea, but it has the potential to change how we approach many hard problems in science and engineering.
 
