@@ -24,7 +24,8 @@ While BO can be very fast nowadays and with solid implementations such as [BOtor
 **But what if, instead of all this, we could just... predict the optimum?**
 
 The core idea I want to discuss is this: if we are smart about it, we can reframe the entire task of optimization as a straightforward prediction problem.<d-footnote>With the inevitable caveats, which we will cover later.</d-footnote>
-Given a few samples from a function, we can train a neural network to directly output a probability distribution over the location $\mathbf{x}\_{\text{opt}}$ and value $y\_{\text{opt}}$ of the global optimum. This is one of the key applications of our recent work on the [Amortized Conditioning Engine (ACE)](https://acerbilab.github.io/amortized-conditioning-engine/)<d-cite key="chang2025amortized"></d-cite>.
+Given a few samples from a function, we can train a neural network to directly output a probability distribution over the location $\mathbf{x}\_{\text{opt}}$ and value $y\_{\text{opt}}$ of the global optimum.<d-footnote>In this post, we follow the convention that the goal is to *minimize* the function, so the global optimum is the *global minimum* of the function.</d-footnote>
+This is one of the key applications of our recent work on the [Amortized Conditioning Engine (ACE)](https://acerbilab.github.io/amortized-conditioning-engine/)<d-cite key="chang2025amortized"></d-cite>.
 
 ## The core idea: learning from imagination
 
@@ -81,15 +82,15 @@ By repeating this recipe millions of times, we can build a massive, diverse data
 
 ## A transformer that predicts optima
 
-Once you have this dataset, the rest is almost standard machine learning. We feed our model, ACE, a "context set" consisting of a few observed `(x, y)` pairs from a function. The model's task is to predict the latent variables we care about: $\mathbf{x}_{\text{opt}}$ and $y_{\text{opt}}$. "Latent" here is taken from the language of probabilistic modeling, and simply means "unknown", as opposed to the *observed* function values.
+Once you have this dataset, the rest is fairly standard machine learning. We feed our model, ACE, a "context set" consisting of a few observed `(x, y)` pairs from a function. The model's task is to predict the latent variables we care about: $\mathbf{x}\_{\text{opt}}$ and $y\_{\text{opt}}$. Here the term *latent* is taken from the language of probabilistic modeling, and simply means "unknown", as opposed to the *observed* function values.
 
-Because ACE is a transformer, it uses the attention mechanism to see the relationships between the context points and produces a full predictive distribution for the optimum, not just a single point estimate. This means we get uncertainty estimates for free, which is crucial for any Bayesian approach.
+Because ACE is a transformer, it uses the attention mechanism to see the relationships between the context points and we set it up to output a full predictive distribution for the optimum, not just a single point estimate. This means we get uncertainty estimates for free, which is crucial for any Bayesian approach.
 
-In addition to predicting the latent variables, ACE can also predict data, i.e., function values $y^\star$ at any target point $\mathbf{x}^\star$, following the recipe of similar models such as the Transformer Neural Process (TNPs)<d-cite key="nguyen2022transformer"></d-cite> and Prior-Fitted Networks (PFNs)<d-cite key="muller2022transformers"></d-cite>. ACE differs from these previous models in that it is the first architecture to explicitly predict latent variables for the task of interest, and not just data points.
+In addition to predicting the latent variables, ACE can also predict data, i.e., function values $y^\star$ at any target point $\mathbf{x}^\star$, following the recipe of similar models such as the Transformer Neural Process (TNPs)<d-cite key="nguyen2022transformer"></d-cite> and Prior-Fitted Networks (PFNs)<d-cite key="muller2022transformers"></d-cite>. ACE differs from these previous models in that it is the first architecture to explicitly predict latent variables for the task of interest -- such as the optimum location and value in BO --, and not just data points.
 
 <figure style="text-align: center;">
 <img src="/assets/img/posts/predict-the-optimum/bo-prediction-conditioning.png" alt="ACE predicting the optimum location and value in Bayesian Optimization." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
-<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">ACE can directly predict distributions over the optimum's location $p(x_{\text{opt}}|\mathcal{D})$ and value $p(y_{\text{opt}}|\mathcal{D})$ (left panel). These predictions can be further refined by conditioning on additional information, for example by providing a known value for the optimum $y_{\text{opt}}$ (right panel).</figcaption>
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">ACE can directly predict distributions over the optimum's location $p(x_{\text{opt}}|\mathcal{D})$ and value $p(y_{\text{opt}}|\mathcal{D})$ (left panel). These predictions can be further refined by conditioning on additional information, for example by providing a known value for the optimum $y_{\text{opt}}$ (right panel). Note that the predictions are sensible: for example, in the left panel, the prediction of the value of the optimum (orange distribution) is *equal or below* the lowest observed function value. This is not hard-coded, but entirely learnt by our network! Also note that the conditioning on a known $y_{\text{opt}}$ value in the right panel "pulls down" the function predictions.</figcaption>
 </figure>
 
 ## What if you already have a good guess?
