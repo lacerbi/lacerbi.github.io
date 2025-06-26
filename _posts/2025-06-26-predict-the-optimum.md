@@ -19,7 +19,7 @@ bibliography: 2024-12-4-vi-is-inference-is-optimization.bib
 
 [Bayesian optimization](https://distill.pub/2020/bayesian-optimization/) (BO) is one of the pillars of modern machine learning and scientific discovery. It's a standard tool for finding the best hyperparameters for a model, the ideal material composition, or the most effective drug compound. The textbook picture of BO is an elegant and simple loop: fit a probabilistic surrogate model (usually a [Gaussian Process](https://distill.pub/2019/visual-exploration-gaussian-processes/) aka GP) to your observations, then optimize a so-called *acquisition function* to decide where to sample next, rinse and repeat.
 
-While BO can be very fast nowadays and with solid implementations such as [BOtorch](https://botorch.org/), the classic loop can become intricated and sluggish once you move beyond the most basic settings known as vanilla BO. There is a whole zoo of options to choose from: many different Gaussian Process kernels and an ever-growing list of acquisition functions (e.g., Expected Improvement, Upper Confidence Bound, Entropy Search, and many more). Moreover, something that seems like it should be simple in a method that has "Bayesian" in the name -- for example, including an educated guess (a prior) about the location or value of the optimum -- is not at all straightforward to incorporate into the standard GP framework.
+While BO can be very fast nowadays and with solid implementations such as [BOtorch](https://botorch.org/), the classic loop can become intricated and sluggish once you move beyond the most basic or "vanilla" settings. There is a whole zoo of options to choose from: many different Gaussian Process kernels and an ever-growing list of acquisition functions (e.g., Expected Improvement, Upper Confidence Bound, Entropy Search, and many more). Moreover, something that seems like it should be simple in a method that has "Bayesian" in the name -- for example, including an educated guess (a prior) about the location or value of the optimum -- is not at all straightforward to incorporate into the standard GP framework.
 
 **But what if, instead of all this, we could just... predict the optimum?**
 
@@ -35,13 +35,13 @@ We can do the same with machine learning. If we can generate a virtually infinit
 The main bottleneck for this approach is similar to the problem faced by modern LLMs: finding the *training data*.
 Where do we get a limitless dataset of functions with *known optima*?
 
-While there are well-known techniques to generate functions (for example, using our old friends, the GPs), if we are required to optimize them to know their optium, it looks like we are back to square one. The functions we want to train on are exactly those difficult, pesky functions where finding the optimum is hard in the first place. Generating such `(function, optimum)` pairs would be extremely expensive.
+While there are well-known techniques to generate functions (for example, using our old friends, the GPs), if we are required to optimize them to know their optimum, it looks like we are back to square one. The functions we want to train on are exactly those difficult, pesky functions where finding the optimum is hard in the first place. Generating such `(function, optimum)` pairs would be extremely expensive.
 
 But it turns out you can do better than this, if you're willing to get your hands dirty with a bit of generative modeling.
 
 ## How to cook up a function with a known optimum
 
-In our ACE paper, we needed to create a massive dataset of functions to train our model. The challenge was ensuring each function was unique, complex, and -- most importantly -- had a single, known global optimum $(\mathbf{x}_{\text{opt}}, y_{\text{opt}})$ which we could give our network as a target or label for training. Here is the recipe we came up with, which you can think of in four steps.
+In our ACE paper, we needed to create a massive dataset of functions to train our model. The challenge was ensuring each function was unique, complex, and -- most importantly -- had a single, known global optimum $(\mathbf{x}\_{\text{opt}}, y\_{\text{opt}})$ which we could give our network as a target or label for training. Here is the recipe we came up with, which you can think of in four steps.
 
 #### Step 1: Choose the function's "character"
 
@@ -49,24 +49,22 @@ First, we decide what kind of function we want to generate. Is it very smooth an
 
 #### Step 2: Pick a plausible optimum
 
-Next, we choose a location for the global optimum, $\mathbf{x}_{\text{opt}}$, usually by sampling it uniformly within a box.
-Then comes an interesting trick. We don't just pick any value $y_{\text{opt}}$. To make it realistic, we sample it from the *minimum-value distribution* for the specific GP family we chose in Step 1. This ensures that the optimum's value is statistically plausible for that function style. With a small probability, we bump the minimum to be even lower, to make our method robust to "unexpectedly low" minima.
+Next, we choose a location for the global optimum, $\mathbf{x}\_{\text{opt}}$, usually by sampling it uniformly within a box.
+Then comes an interesting trick. We don't just pick any value $y\_{\text{opt}}$. To make it realistic, we sample it from the *minimum-value distribution* for the specific GP family we chose in Step 1. This ensures that the optimum's value is statistically plausible for that function style. With a small probability, we bump the minimum to be even lower, to make our method robust to "unexpectedly low" minima.
 
 #### Step 3: Ensuring a known global optimum
 
-First, we generate a function from the GP prior (defined in Step 1) by *conditioning* it to pass through our chosen optimum location and value, $(\mathbf{x}_{\text{opt}}, y_{\text{opt}})$ established in Step 2. This is done by treating the optimum as a known data point.
+Then, we generate a function from the GP prior (defined in Step 1) by *conditioning* it to pass through our chosen optimum location and value, $(\mathbf{x}\_{\text{opt}}, y\_{\text{opt}})$ established in Step 2. This is done by treating the optimum as a known data point.
 
-However, simply forcing the function to go through this point is not enough. The GP is a flexible, random process; a sample from it might wiggle around and create an even lower minimum somewhere else by chance. To train our model, we need to be *certain* that $(\mathbf{x}_{\text{opt}}, y_{\text{opt}})$ is the true global optimum.
+However, simply forcing the function to go through this point is not enough. The GP is a flexible, random process; a sample from it might wiggle around and create an even lower minimum somewhere else by chance. To train our model, we need to be *certain* that $(\mathbf{x}\_{\text{opt}}, y\_{\text{opt}})$ is the true global optimum.
 
 To guarantee this, we apply a transformation. As detailed in our paper's appendix, we modify the function by adding a convex envelope. We transform all function values $y_i$ like this:
 
 $$
-y_{i}^{\prime} = y_{\text{opt}} + |y_{i} - y_{\text{opt}}| + \frac{1}{5}\|\mathbf{x}_{\text{opt}} - \mathbf{x}_{i}\|^{2}
+y\_{i}^{\prime} = y\_{\text{opt}} + |y\_{i} - y\_{\text{opt}}| + \frac{1}{5}\|\mathbf{x}\_{\text{opt}} - \mathbf{x}\_{i}\|^{2}
 $$
 
-Let's break down what this does. First, the term $y_{\text{opt}} + |y_{i} - y_{\text{opt}}|$ is equal to $y_{}forces all points $$ reshapes the function, pulling the value at our chosen optimum down to a sharp point, while pushing all other points up. Then, we add a quadratic term—a "bowl"—that has its lowest point exactly at $$ \mathbf{x}_{\text{opt}} $$. This bowl shape lifts every point of the function, but lifts points farther from $$ \mathbf{x}_{\text{opt}} $$ more than those nearby. The result is a new function that is guaranteed to have its single global minimum right where we want it.<d-footnote>The implementation in the paper is slightly different but mathematically equivalent: we first generate functions with an optimum at zero, apply a similar transformation, and then add a random vertical offset. The formula here expresses the same idea more directly.</d-footnote>
-
-Let's break down what this does. The term $y_{\text{opt}} + |y_{i} - y_{\text{opt}}|$ is key. If a function value $y_i$ is already above our chosen optimum $y_{\text{opt}}$, it remains unchanged. However, if $y_i$ happens to be *below* the optimum, this term reflects it upwards, placing it *above* $y_{\text{opt}}$. This ensures that no point in the function has a value lower than our chosen minimum. Then, we add the quadratic "bowl" term that has its lowest point exactly at $\mathbf{x}_{\text{opt}}$. This bowl smoothly lifts every point of the function, but lifts points farther from $\mathbf{x}_{\text{opt}}$ more than those nearby. The result is a new function that is guaranteed to have its single global minimum right where we want it.<d-footnote>The implementation in the paper is slightly different but mathematically equivalent: we first generate functions with an optimum at zero, apply a similar transformation, and then add a random vertical offset. The formula here expresses the same idea more directly.</d-footnote>
+Let's break down what this does. The term $y\_{\text{opt}} + |y\_{i} - y\_{\text{opt}}|$ is key. If a function value $y\_i$ is already above our chosen optimum $y\_{\text{opt}}$, it remains unchanged. However, if $y\_i$ happens to be *below* the optimum, this term reflects it upwards, placing it *above* $y\_{\text{opt}}$. This ensures that no point in the function has a value lower than our chosen minimum. Then, we add the quadratic "bowl" term that has its lowest point exactly at $\mathbf{x}\_{\text{opt}}$. This bowl smoothly lifts every point of the function, but lifts points farther from $\mathbf{x}\_{\text{opt}}$ more than those nearby. The result is a new function that is guaranteed to have its single global minimum right where we want it.<d-footnote>The implementation in the paper is slightly different but mathematically equivalent: we first generate functions with an optimum at zero, apply a similar transformation, and then add a random vertical offset. The formula here expresses the same idea more directly.</d-footnote>
 
 This is a simple but effective way to ensure the ground truth for our generative process is, in fact, true. Without it, we would be feeding our network noisy labels, where the provided "optimum" isn't always the real one.
 
