@@ -138,7 +138,7 @@ While this enhanced Thompson Sampling is powerful and simple, the story doesn't 
 
 ## What if you already have a good guess?
 
-Predicting the optimum from a few data points is powerful, but what if you're not starting from complete ignorance? Often, you have some domain knowledge. For example, if you are tuning the hyperparameters of a neural network, you might have a strong hunch that the optimal learning rate is more likely to be in the range $$ [0.0001, 0.01] $$ than around $$ 1.0 $$. This kind of information is called a *prior* in Bayesian terms.
+Predicting the optimum from a few data points is powerful, but what if you're not starting from complete ignorance? Often, you have some domain knowledge. For example, if you are tuning the hyperparameters of a neural network, you might have a strong hunch that the optimal learning rate is more likely to be in the range $$ [0.0001, 0.01] $$ than around $$ 1.0 $$. This kind of information is called a *prior* in Bayesian terms. 
 
 Incorporating priors into the standard Bayesian optimization loop is surprisingly tricky. While the Bayesian framework is all about updating beliefs, shoehorning prior knowledge about the *optimum's location or value* into a standard Gaussian Process model is not straightforward and either requires heuristics or complex, custom solutions (see, for example, <d-cite key="hvarfner2022pi"></d-cite><d-cite key="hvarfner2024general"></d-cite>).
 
