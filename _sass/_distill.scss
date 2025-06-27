@@ -2,6 +2,33 @@
  * Style overrides for distill blog posts.
  ******************************************************************************/
 
+ // KaTeX dark mode support for Distill posts
+html[data-theme="dark"] {
+  d-article {
+    // Target KaTeX elements with high specificity
+    .katex,
+    .katex-display,
+    .katex .katex-html {
+      color: var(--global-text-color) !important;
+    }
+    
+    // Target all KaTeX spans
+    .katex span {
+      color: var(--global-text-color) !important;
+    }
+    
+    // Specifically target figure captions with KaTeX
+    figcaption {
+      .katex,
+      .katex-display,
+      .katex .katex-html,
+      .katex span {
+        color: var(--global-text-color) !important;
+      }
+    }
+  }
+}
+
 d-byline {
   border-top-color: var(--global-divider-color) !important;
 }
