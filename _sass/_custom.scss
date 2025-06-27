@@ -1,0 +1,15 @@
+// AI Summary: Custom styles for blog components that need theme-aware styling.
+// Provides acknowledgments box styling using CSS variables for light/dark mode compatibility.
+
+/*******************************************************************************
+ * Custom blog post components
+ ******************************************************************************/
+
+.acknowledgments-box {
+  padding: 1.5em;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 5px;
+  background-color: var(--global-code-bg-color);
+}
