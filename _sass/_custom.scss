@@ -1,8 +1,0 @@
-/*
- * Fix for inline KaTeX color in dark mode
- */
-[data-theme='dark'] {
-  .katex {
-    color: var(--global-text-color);
-  }
-}
