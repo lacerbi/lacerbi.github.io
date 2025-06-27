@@ -88,7 +88,7 @@ $$
 
 Let's break down what this does. The term $$ y_{\text{opt}} + \lvert y_{i} - y_{\text{opt}}\rvert $$ is key. If a function value $$ y_i $$ is already above our chosen optimum $$ y_{\text{opt}} $$, it remains unchanged. However, if $$ y_i $$ happens to be *below* the optimum, this term reflects it upwards, placing it *above* $$ y_{\text{opt}} $$. Then, we add the quadratic "bowl" term that has its lowest point exactly at $$ \mathbf{x}_{\text{opt}} $$.<d-footnote>The $1/5$ is a magic number that governs the curvature of the bowl; you can change it.</d-footnote> This bowl smoothly lifts every point of the function, but lifts points farther from $$ \mathbf{x}_{\text{opt}} $$ more than those nearby. The result is a new function that is guaranteed to have its single global minimum right where we want it.<d-footnote>The implementation in the paper is slightly different but mathematically equivalent: we first generate functions with an optimum at zero, apply a similar transformation, and then add a random vertical offset. The formula here expresses the same idea more directly.</d-footnote>
 
-This is a simple but effective way to ensure the ground truth for our generative process is, in fact, true. Without it, we would be feeding our network noisy labels, where the provided "optimum" isn't always the real one.
+This is a simple but effective way to ensure the ground truth for our generative process is, in fact, true. Without it, we would be feeding our network noisy labels, where the provided "optimum" isn't always the real one. 
 
 #### Step 4: Final touches
 

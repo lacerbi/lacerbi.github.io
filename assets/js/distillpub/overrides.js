@@ -26,3 +26,15 @@ $(document).ready(function () {
       .sheet.insertRule(".panel {border-color: var(--global-divider-color) !important;}");
   });
 });
+// Ensure all KaTeX elements are displayed correctly in dark mode
+// Wait until the entire page is fully loaded, including all scripts
+window.addEventListener('load', function() {
+  // Find all KaTeX math elements inside a distill article
+  const katexElements = document.querySelectorAll('d-article span.katex, d-article span.katex-display');
+
+  // Apply an inline style to each math element.
+  // Inline styles have very high priority and will override the injected stylesheet.
+  katexElements.forEach(function(el) {
+    el.style.color = 'var(--global-text-color)';
+  });
+});

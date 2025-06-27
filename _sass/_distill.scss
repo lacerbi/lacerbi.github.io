@@ -134,12 +134,6 @@ d-article {
   d-footnote {
     scroll-margin-top: 66px;
   }
-
-  // Final attempt to override KaTeX color with a hyper-specific selector.
-  span.katex[class*="katex"],
-  span.katex-display[class*="katex-display"] {
-    color: var(--global-text-color) !important;
-  }
 }
 
 d-appendix {
