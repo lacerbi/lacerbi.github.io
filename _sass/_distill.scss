@@ -136,7 +136,8 @@ d-article {
   }
 
   // KaTeX color override for theme compatibility
-  .katex, .katex-display {
+  // This selector is more specific to override distill's injected styles
+  span.katex, span.katex-display {
     color: var(--global-text-color) !important;
   }
 }
