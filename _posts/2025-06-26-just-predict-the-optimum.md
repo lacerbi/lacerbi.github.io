@@ -45,7 +45,7 @@ While BO can be very fast nowadays and with solid implementations such as [BoTor
 **But what if, instead of all this, we could just... predict the optimum?**
 
 The core idea I want to discuss in this blog post is this: if we are smart about it, we can reframe the entire task of optimization as a straightforward prediction problem.<d-footnote>With the inevitable caveats, which we will cover later.</d-footnote>
-Given a few samples from a function, we can train a neural network to directly output a probability distribution over the location $\mathbf{x}\_{\text{opt}}$ and value $y\_{\text{opt}}$ of the global optimum.<d-footnote>In this post, we follow the convention that the goal is to *minimize* the function, so the global optimum is the *global minimum* of the function.</d-footnote>
+Given a few samples from a function, we can train a neural network to directly output a probability distribution over the location $$ \mathbf{x}_{\text{opt}} $$ and value $$ y_{\text{opt}} $$ of the global optimum.<d-footnote>In this post, we follow the convention that the goal is to *minimize* the function, so the global optimum is the *global minimum* of the function.</d-footnote>
 This is one of the key applications of our recent work on the [Amortized Conditioning Engine](https://acerbilab.github.io/amortized-conditioning-engine/) (ACE)<d-cite key="chang2025amortized"></d-cite>.
 
 ## The core idea: learning from imagination
@@ -63,7 +63,7 @@ But it turns out you can do better than this, if you're willing to get your hand
 
 ## How to cook up a function with a known optimum
 
-In our ACE paper, we needed to create a massive dataset of functions to train our model. The challenge was ensuring each function was unique, complex, and -- most importantly -- had a single, known global optimum $(\mathbf{x}\_{\text{opt}}, y\_{\text{opt}})$ which we could give our network as a target or label for training. Here is the recipe we came up with, which you can think of in four steps.
+In our ACE paper, we needed to create a massive dataset of functions to train our model. The challenge was ensuring each function was unique, complex, and -- most importantly -- had a single, known global optimum $$ (\mathbf{x}_{\text{opt}}, y_{\text{opt}}) $$ which we could give our network as a target or label for training. Here is the recipe we came up with, which you can think of in four steps.
 
 #### Step 1: Choose the function's "character"
 
@@ -71,28 +71,28 @@ First, we decide what kind of function we want to generate. Is it very smooth an
 
 #### Step 2: Pick a plausible optimum
 
-Next, we choose a location for the global optimum, $\mathbf{x}\_{\text{opt}}$, usually by sampling it uniformly within a box.
-Then comes an interesting trick. We don't just pick any value $y\_{\text{opt}}$. To make it realistic, we sample it from the *minimum-value distribution* for the specific GP family we chose in Step 1. This ensures that the optimum's value is statistically plausible for that function style. With a small probability, we bump the minimum to be even lower, to make our method robust to "unexpectedly low" minima.
+Next, we choose a location for the global optimum, $$ \mathbf{x}_{\text{opt}} $$, usually by sampling it uniformly within a box.
+Then comes an interesting trick. We don't just pick any value $$ y_{\text{opt}} $$. To make it realistic, we sample it from the *minimum-value distribution* for the specific GP family we chose in Step 1. This ensures that the optimum's value is statistically plausible for that function style. With a small probability, we bump the minimum to be even lower, to make our method robust to "unexpectedly low" minima.
 
 #### Step 3: Ensuring a known global optimum
 
-Then, we generate a function from the GP prior (defined in Step 1) by *conditioning* it to pass through our chosen optimum location and value, $(\mathbf{x}\_{\text{opt}}, y\_{\text{opt}})$ established in Step 2. This is done by treating the optimum as a known data point.
+Then, we generate a function from the GP prior (defined in Step 1) by *conditioning* it to pass through our chosen optimum location and value, $$ (\mathbf{x}_{\text{opt}}, y_{\text{opt}}) $$ established in Step 2. This is done by treating the optimum as a known data point.
 
-However, simply forcing the function to go through this point is not enough. The GP is a flexible, random process; a sample from it might wiggle around and create an even lower minimum somewhere else by chance. To train our model, we need to be *certain* that $(\mathbf{x}\_{\text{opt}}, y\_{\text{opt}})$ is the true global optimum.
+However, simply forcing the function to go through this point is not enough. The GP is a flexible, random process; a sample from it might wiggle around and create an even lower minimum somewhere else by chance. To train our model, we need to be *certain* that $$ (\mathbf{x}_{\text{opt}}, y_{\text{opt}}) $$ is the true global optimum.
 
-To guarantee this, we apply a transformation. As detailed in our paper's appendix, we modify the function by adding a *convex envelope*. We transform all function values $y_i$ like this:
+To guarantee this, we apply a transformation. As detailed in our paper's appendix, we modify the function by adding a *convex envelope*. We transform all function values $$ y_{i} $$ like this:
 
 $$
 y_{i}^{\prime} = y_{\text{opt}} + |y_{i} - y_{\text{opt}}| + \frac{1}{5}\|\mathbf{x}_{\text{opt}} - \mathbf{x}_{i}\|^{2}.
 $$
 
-Let's break down what this does. The term $y\_{\text{opt}} + \|y\_{i} - y\_{\text{opt}}\|$ is key. If a function value $y\_i$ is already above our chosen optimum $y\_{\text{opt}}$, it remains unchanged. However, if $y\_i$ happens to be *below* the optimum, this term reflects it upwards, placing it *above* $y\_{\text{opt}}$. This ensures that no point in the function has a value lower than our chosen minimum. Then, we add the quadratic "bowl" term that has its lowest point exactly at $\mathbf{x}\_{\text{opt}}$.<d-footnote>The $1/5$ is a magic number that governs the curvature of the bowl; you can change it.</d-footnote> This bowl smoothly lifts every point of the function, but lifts points farther from $\mathbf{x}\_{\text{opt}}$ more than those nearby. The result is a new function that is guaranteed to have its single global minimum right where we want it.<d-footnote>The implementation in the paper is slightly different but mathematically equivalent: we first generate functions with an optimum at zero, apply a similar transformation, and then add a random vertical offset. The formula here expresses the same idea more directly.</d-footnote>
+Let's break down what this does. The term $$ y_{\text{opt}} + |y_{i} - y_{\text{opt}}| $$ is key. If a function value $$ y_i $$ is already above our chosen optimum $$ y_{\text{opt}} $$, it remains unchanged. However, if $$ y_i $$ happens to be *below* the optimum, this term reflects it upwards, placing it *above* $$ y_{\text{opt}} $$. Then, we add the quadratic "bowl" term that has its lowest point exactly at $$ \mathbf{x}_{\text{opt}} $$.<d-footnote>The $$ 1/5 $$ is a magic number that governs the curvature of the bowl; you can change it.</d-footnote> This bowl smoothly lifts every point of the function, but lifts points farther from $$ \mathbf{x}_{\text{opt}} $$ more than those nearby. The result is a new function that is guaranteed to have its single global minimum right where we want it.<d-footnote>The implementation in the paper is slightly different but mathematically equivalent: we first generate functions with an optimum at zero, apply a similar transformation, and then add a random vertical offset. The formula here expresses the same idea more directly.</d-footnote>
 
 This is a simple but effective way to ensure the ground truth for our generative process is, in fact, true. Without it, we would be feeding our network noisy labels, where the provided "optimum" isn't always the real one.
 
 #### Step 4: Final touches
 
-With the function's shape secured, we simply sample the data points (the `(x, y)` pairs) that we'll use for training. We also add a random vertical offset to the whole function. This prevents the model from cheating by learning, for example, that optima are always near $y=0$.
+With the function's shape secured, we simply sample the data points (the $$ (x, y) $$ pairs) that we'll use for training. We also add a random vertical offset to the whole function. This prevents the model from cheating by learning, for example, that optima are always near $$ y=0 $$.
 
 By repeating this recipe millions of times, we can build a massive, diverse dataset of `(function, optimum)` pairs. The hard work is done. Now, we just need to learn from it.
 
@@ -103,29 +103,29 @@ By repeating this recipe millions of times, we can build a massive, diverse data
 
 ## A transformer that predicts optima
 
-Once you have this dataset, the rest is fairly standard machine learning. We feed our model, ACE, a "context set" consisting of a few observed `(x, y)` pairs from a function. The model's task is to predict the latent variables we care about: $\mathbf{x}\_{\text{opt}}$ and $y\_{\text{opt}}$. Here the term *latent* is taken from the language of probabilistic modeling, and simply means "unknown", as opposed to the *observed* function values.
+Once you have this dataset, the rest is fairly standard machine learning. We feed our model, ACE, a "context set" consisting of a few observed `(x, y)` pairs from a function. The model's task is to predict the latent variables we care about: $$ \mathbf{x}_{\text{opt}} $$ and $$ y_{\text{opt}} $$. Here the term *latent* is taken from the language of probabilistic modeling, and simply means "unknown", as opposed to the *observed* function values.
 
 Because ACE is a transformer, it uses the attention mechanism to see the relationships between the context points and we set it up to output a full predictive distribution for the optimum, not just a single point estimate. This means we get uncertainty estimates for free, which is crucial for any Bayesian approach.
 
-In addition to predicting the latent variables, ACE can also predict data, i.e., function values $y^\star$ at any target point $\mathbf{x}^\star$, following the recipe of similar models such as the Transformer Neural Process (TNP)<d-cite key="nguyen2022transformer"></d-cite> and Prior-Fitted Networks (PFNs)<d-cite key="muller2022transformers"></d-cite>. ACE differs from these previous models in that it is the first architecture that allows the user to explicitly condition on and predict latent variables for the task of interest -- such as the optimum location and value in BO --, and not just data points.
+In addition to predicting the latent variables, ACE can also predict data, i.e., function values $$ y^\star $$ at any target point $$ \mathbf{x}^\star $$, following the recipe of similar models such as the Transformer Neural Process (TNP)<d-cite key="nguyen2022transformer"></d-cite> and Prior-Fitted Networks (PFNs)<d-cite key="muller2022transformers"></d-cite>. ACE differs from these previous models in that it is the first architecture that allows the user to explicitly condition on and predict latent variables for the task of interest -- such as the optimum location and value in BO --, and not just data points.
 
 <figure style="text-align: center;">
 <img src="/assets/img/posts/just-predict-the-optimum/bo-prediction-conditioning.png" alt="ACE predicting the optimum location and value in Bayesian Optimization." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
-<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">ACE can directly predict distributions over the optimum's location $p(x_{\text{opt}}|\mathcal{D})$ and value $p(y_{\text{opt}}|\mathcal{D})$ (left panel). These predictions can be further refined by conditioning on additional information, for example by providing a known value for the optimum $y_{\text{opt}}$ (right panel). Note that the predictions are sensible: for example, in the left panel, the prediction of the value of the optimum (orange distribution) is *equal or below* the lowest observed function value. This is not hard-coded, but entirely learnt by our network! Also note that the conditioning on a known $y_{\text{opt}}$ value in the right panel "pulls down" the function predictions.</figcaption>
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 20px;">ACE can directly predict distributions over the optimum's location $$ p(x_{\text{opt}}|\mathcal{D}) $$ and value $$ p(y_{\text{opt}}|\mathcal{D}) $$ (left panel). These predictions can be further refined by conditioning on additional information, for example by providing a known value for the optimum $$ y_{\text{opt}} $$ (right panel). Note that the predictions are sensible: for example, in the left panel, the prediction of the value of the optimum (orange distribution) is *equal or below* the lowest observed function value. This is not hard-coded, but entirely learnt by our network! Also note that the conditioning on a known $$ y_{\text{opt}} $$ value in the right panel "pulls down" the function predictions.</figcaption>
 </figure>
 
 ## The BO loop with ACE
 
 So we have a model that, given a few observations, can predict a probability distribution over the optimum's location and value. How do we use this to power the classic Bayesian optimization loop?
 
-At each step, we need to decide which point $\mathbf{x}\_{\text{next}}$ to evaluate. This choice is guided by an *acquisition function*. One of the most intuitive acquisition strategies is [Thompson sampling](https://en.wikipedia.org/wiki/Thompson_sampling), which suggests that we should sample our next point from our current belief about where the optimum is. For us, this would mean sampling from $p(\mathbf{x}\_{\text{opt}}\|\mathcal{D})$, which we can easily do with ACE.
+At each step, we need to decide which point $$ \mathbf{x}_{\text{next}} $$ to evaluate. This choice is guided by an *acquisition function*. One of the most intuitive acquisition strategies is [Thompson sampling](https://en.wikipedia.org/wiki/Thompson_sampling), which suggests that we should sample our next point from our current belief about where the optimum is. For us, this would mean sampling from $$ p(\mathbf{x}_{\text{opt}}\|\mathcal{D}) $$, which we can easily do with ACE.
 
 But there's a subtle trap here. If we just sample from our posterior over the optimum's location, we risk getting stuck. The model's posterior will naturally concentrate around the best point seen so far -- which is a totally sensible belief to hold. However, sampling from it might lead us to repeatedly query points in the same "good" region without ever truly exploring for a *great* one. The goal is to find a *better* point, not just to confirm where we think the current optimum is.
 
 This is where having predictive distributions over both the optimum's location *and* value becomes relevant. With ACE, we can use an enhanced version of Thompson sampling that explicitly encourages exploration (see <d-cite key="dutordoir2023neural"></d-cite> for a similar approach):
 
-1.  First, we "imagine" (aka *phantasize*) a better outcome. We sample a target value $y\_{\text{opt}}^\star$ from our predictive distribution $p(y\_{\text{opt}}\|\mathcal{D})$, but with the crucial constraint that this value must be *lower* than the best value, $y\_{\text{min}}$, observed so far.
-2.  Then, we ask the model: "Given that we're aiming for this new, better score, where should we look?" We then sample the next location $\mathbf{x}\_{\text{next}}$ from the conditional distribution $p(\mathbf{x}\_{\text{opt}}\|\mathcal{D}, y\_{\text{opt}}^\star)$.
+1.  First, we "imagine" (aka *phantasize*) a better outcome. We sample a target value $$ y_{\text{opt}}^\star $$ from our predictive distribution $$ p(y_{\text{opt}}\|\mathcal{D}) $$, but with the crucial constraint that this value must be *lower* than the best value, $$ y_{\text{min}} $$, observed so far.
+2.  Then, we ask the model: "Given that we're aiming for this new, better score, where should we look?" We then sample the next location $$ \mathbf{x}_{\text{next}} $$ from the conditional distribution $$ p(\mathbf{x}_{\text{opt}}\|\mathcal{D}, y_{\text{opt}}^\star) $$.
 
 This two-step process elegantly balances exploitation (by conditioning on data) and exploration (by forcing the model to seek improvement). It's a simple, probabilistic way to drive the search towards new and better regions of the space, as shown in the example below.
 
@@ -133,7 +133,7 @@ While this enhanced Thompson Sampling is powerful and simple, the story doesn't 
 
 <figure style="text-align: center;">
 <img src="/assets/img/posts/just-predict-the-optimum/bo-evolution.png" alt="Evolution of ACE's predictions during Bayesian optimization." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
-<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 40px;">An example of ACE in action for Bayesian optimization. In each step (from left to right), ACE observes a new point (red asterisk) and updates its beliefs. The orange distribution on the left is the model's prediction for the optimum's *value* ($y_{\text{opt}}$). The red distribution at the bottom is the prediction for the optimum's *location* ($x_{\text{opt}}$), which gets more certain with each observation.</figcaption>
+<figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 40px;">An example of ACE in action for Bayesian optimization. In each step (from left to right), ACE observes a new point (red asterisk) and updates its beliefs. The orange distribution on the left is the model's prediction for the optimum's *value* ($$ y_{\text{opt}} $$). The red distribution at the bottom is the prediction for the optimum's *location* ($$ x_{\text{opt}} $$), which gets more certain with each observation.</figcaption>
 </figure>
 
 ## What if you already have a good guess?
@@ -144,7 +144,7 @@ Incorporating priors into the standard Bayesian optimization loop is surprisingl
 
 This is another area where an amortized approach shines. Because we control the training data generation, we can teach ACE not only to predict the optimum but also how to listen to and use a prior. During its training, we don't just show ACE functions; we also provide it with various "hunches" (priors of different shapes and strengths) about where the optimum might be for those functions, or for its value. By seeing millions of examples, ACE learns to combine the information from the observed data points with the hint provided by the prior.
 
-At runtime, the user can provide a prior distribution over the optimum's location, $p(\mathbf{x}\_{\text{opt}})$, or value $p(y\_{\text{opt}})$, as a simple histogram across each dimension. ACE then seamlessly integrates this information to produce a more informed (and more constrained) prediction for the optimum. This allows for even faster convergence, as the model doesn't waste time exploring regions that the user already knows are unpromising. Instead of being a complex add-on, incorporating prior knowledge becomes another natural part of the prediction process.
+At runtime, the user can provide a prior distribution over the optimum's location, $$ p(\mathbf{x}_{\text{opt}}) $$, or value $$ p(y_{\text{opt}}) $$, as a simple histogram across each dimension. ACE then seamlessly integrates this information to produce a more informed (and more constrained) prediction for the optimum. This allows for even faster convergence, as the model doesn't waste time exploring regions that the user already knows are unpromising. Instead of being a complex add-on, incorporating prior knowledge becomes another natural part of the prediction process.
 
 <figure style="text-align: center;">
 <img src="/assets/img/posts/just-predict-the-optimum/bo-with-prior.png" alt="Comparison of Bayesian optimization with and without an informative prior on the optimum location." style="width:100%; max-width: 700px; margin-left: auto; margin-right: auto; display: block;">
@@ -156,7 +156,7 @@ At runtime, the user can provide a prior distribution over the optimum's locatio
 
 The main takeaway is that by being clever about data generation, we can transform traditionally complex inference and reasoning problems into large-scale prediction tasks. This approach unifies seemingly disparate fields. In the ACE paper, we show that the *exact same architecture* can be used for Bayesian optimization, simulation-based inference (predicting simulator parameters from data), and even image completion and classification (predicting class labels or missing pixels).
 
-Everything -- well, *almost* everything -- boils down to conditioning on data and possibly task-relevant latents (or prior information), and predicting data or other task-relevant latent variables, where what the "latent variable" is depends on the task. For example, in BO, as we saw in this blog post, the latents of interest are the location $\mathbf{x}\_{\text{opt}}$ and value $y\_{\text{opt}}$ of the global optimum.
+Everything -- well, *almost* everything -- boils down to conditioning on data and possibly task-relevant latents (or prior information), and predicting data or other task-relevant latent variables, where what the "latent variable" is depends on the task. For example, in BO, as we saw in this blog post, the latents of interest are the location $$ \mathbf{x}_{\text{opt}} $$ and value $$ y_{\text{opt}} $$ of the global optimum.
 
 
 <figure style="text-align: center;">
