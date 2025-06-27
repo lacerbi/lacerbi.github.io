@@ -118,7 +118,7 @@ In addition to predicting the latent variables, ACE can also predict data, i.e.,
 
 So we have a model that, given a few observations, can predict a probability distribution over the optimum's location and value. How do we use this to power the classic Bayesian optimization loop?
 
-At each step, we need to decide which point \( \mathbf{x}\_{\text{next}} \) to evaluate. This choice is guided by an *acquisition function*. One of the most intuitive acquisition strategies is [Thompson sampling](https://en.wikipedia.org/wiki/Thompson_sampling), which suggests that we should sample our next point from our current belief about where the optimum is. For us, this would mean sampling from \( p(\mathbf{x}\_{\text{opt}}\mid\mathcal{D}) \), which we can easily do with ACE.
+At each step, we need to decide which point $$ \mathbf{x}\_{\text{next}} $$ to evaluate. This choice is guided by an *acquisition function*. One of the most intuitive acquisition strategies is [Thompson sampling](https://en.wikipedia.org/wiki/Thompson_sampling), which suggests that we should sample our next point from our current belief about where the optimum is. For us, this would mean sampling from $$ p(\mathbf{x}\_{\text{opt}}\mid\mathcal{D}) $$, which we can easily do with ACE.
 
 But there's a subtle trap here. If we just sample from our posterior over the optimum's location, we risk getting stuck. The model's posterior will naturally concentrate around the best point seen so far -- which is a totally sensible belief to hold. However, sampling from it might lead us to repeatedly query points in the same "good" region without ever truly exploring for a *great* one. The goal is to find a *better* point, not just to confirm where we think the current optimum is.
 
