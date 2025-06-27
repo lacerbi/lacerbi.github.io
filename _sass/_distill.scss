@@ -135,9 +135,9 @@ d-article {
     scroll-margin-top: 66px;
   }
 
-  // KaTeX color override for theme compatibility
-  // This selector is more specific to override distill's injected styles
-  span.katex, span.katex-display {
+  // Final attempt to override KaTeX color with a hyper-specific selector.
+  span.katex[class*="katex"],
+  span.katex-display[class*="katex-display"] {
     color: var(--global-text-color) !important;
   }
 }
