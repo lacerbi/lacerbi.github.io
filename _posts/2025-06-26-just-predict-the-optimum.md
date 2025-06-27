@@ -78,10 +78,9 @@ Then comes an interesting trick. We don't just pick any value $$ y_{\text{opt}} 
 
 Then, we generate a function from the GP prior (defined in Step 1) by *conditioning* it to pass through our chosen optimum location and value, $$ (\mathbf{x}_{\text{opt}}, y_{\text{opt}}) $$ established in Step 2. This is done by treating the optimum as a known data point.
 
-However, simply forcing the function to go through this point is not enough. The GP is a flexible, random process; a sample from it might wiggle around and create an even lower minimum somewhere else by chance. To train our model, we need to be *certain* that $$ (\mathbf{x}_{\text{opt}}, y_{\text{opt}}) $$ is the true global optimum.
+However, simply forcing the function to go through this point is not enough. The GP is a flexible, random process; a sample from it might wiggle around and create an even lower minimum somewhere else by chance. To train our model, we need to be *certain* that $$ (\mathbf{x}_{\text{opt}}, y_{\text{opt}}) $$ is the true global optimum. 
 
 To guarantee this, we apply a transformation. As detailed in our paper's appendix, we modify the function by adding a *convex envelope*. We transform all function values $$ y_{i} $$ like this:
-
 $$
 y_{i}^{\prime} = y_{\text{opt}} + |y_{i} - y_{\text{opt}}| + \frac{1}{5}\|\mathbf{x}_{\text{opt}} - \mathbf{x}_{i}\|^{2}.
 $$

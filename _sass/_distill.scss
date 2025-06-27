@@ -134,6 +134,11 @@ d-article {
   d-footnote {
     scroll-margin-top: 66px;
   }
+
+  // KaTeX color override for theme compatibility
+  .katex, .katex-display {
+    color: var(--global-text-color) !important;
+  }
 }
 
 d-appendix {
