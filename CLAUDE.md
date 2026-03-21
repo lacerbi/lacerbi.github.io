@@ -21,8 +21,6 @@ JEKYLL_ENV=production bundle exec jekyll build
 # Install dependencies
 bundle install
 
-# Format code (Prettier with Liquid plugin)
-npx prettier --write .
 ```
 
 **Deployment:** Pushing to `master` automatically triggers CI (`deploy.yml`): builds with `JEKYLL_ENV=production`, purges unused CSS, and deploys to GitHub Pages. The `bin/deploy` script exists as a manual alternative but is generally unnecessary.
@@ -60,8 +58,4 @@ Library versions and SRI hashes are configured in `_config.yml` under `third_par
 
 ## CI/CD
 
-GitHub Actions workflows handle: deployment (`deploy.yml`), Prettier formatting checks (`prettier.yml`), broken link validation (`broken-links.yml`), Lighthouse performance audits, and accessibility testing (`axe.yml`).
-
-## Formatting
-
-Prettier is mandatory. Config in `.prettierrc` uses the `@shopify/prettier-plugin-liquid` plugin with 150 char print width.
+GitHub Actions workflows handle: deployment (`deploy.yml`), broken link validation (`broken-links.yml`), Lighthouse performance audits, and accessibility testing (`axe.yml`).
