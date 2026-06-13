@@ -28,7 +28,7 @@ toc:
 ---
 
 <div class="acknowledgments-box">
-<b>🚀 Update (June 2026):</b> You can now <b>play with ACE live in your browser</b> with <a href="https://acerbilab.github.io/nanoACE/">nanoACE</a>, an interactive playground with dedicated tabs for Bayesian optimization and active learning (ALINE).
+<b>Update (June 2026):</b> You can now <b>play with ACE live in your browser</b> with <a href="https://acerbilab.github.io/nanoACE/">nanoACE</a>, an interactive playground with dedicated tabs for Bayesian optimization and active learning (ALINE).
 </div>
 
 <details>
@@ -140,7 +140,9 @@ While this enhanced Thompson Sampling is powerful and simple, the story doesn't 
 <figcaption style="font-style: italic; margin-top: 10px; margin-bottom: 40px;">An example of ACE in action for Bayesian optimization. In each step (from left to right), ACE observes a new point (red asterisk) and updates its beliefs. The orange distribution on the left is the model's prediction for the optimum's *value* (\(y_{\text{opt}}\)). The red distribution at the bottom is the prediction for the optimum's *location* (\(x_{\text{opt}}\)), which gets more certain with each observation.</figcaption>
 </figure>
 
-**Try it yourself.** You can play with ACE's BO capabilities in the **BO tab** of the [nanoACE playground](https://acerbilab.github.io/nanoACE/): place a few observations of the target function, then watch ACE interactively predict the optimum's location and value.
+<div class="acknowledgments-box">
+<b>Try it yourself.</b> You can play with ACE's BO capabilities in the <b>BO tab</b> of the <a href="https://acerbilab.github.io/nanoACE/">nanoACE playground</a>: place a few observations of the target function, then watch ACE interactively predict the optimum's location and value.
+</div>
 
 ## What if you already have a good guess?
 
@@ -187,6 +189,8 @@ The "just predict it" approach is powerful, but it's not magic -- yet. Here are 
 
 Direct prediction is only one part of the story. As we hinted at earlier, a key component of intelligence -- both human and artificial -- isn't just pattern recognition, but also _planning_ or _search_ (the "thinking" part of modern LLMs and large reasoning models). This module actively decides what to do next to gain the most information. The acquisition strategies we covered are a form of planning which is _not_ amortized. Conversely, we have been working on a more powerful and general framework that tightly integrates amortized inference with amortized active data acquisition. This new system is called [Amortized Active Learning and Inference Engine (ALINE)](https://arxiv.org/abs/2506.07259)<d-cite key="huang2025aline"></d-cite>, where we use reinforcement learning to teach a model not only to predict, but also how to actively _seek_ information in an amortized manner. But that's a story for another day.
 
-You can get a hands-on feel for this in the **ALINE tab** of the [nanoACE playground](https://acerbilab.github.io/nanoACE/), where you can watch the model actively decide where to query next.
+<div class="acknowledgments-box">
+<b>Try it yourself.</b> You can get a hands-on feel for this in the <b>ALINE tab</b> of the <a href="https://acerbilab.github.io/nanoACE/">nanoACE playground</a>, where you can watch the model actively decide where to query next.
+</div>
 
 > The Amortized Conditioning Engine (ACE) is a new, general-purpose framework for multiple kinds of prediction tasks. On the [paper website](https://acerbilab.github.io/amortized-conditioning-engine/) you can find links to all relevant material including code, and we are actively working on extending the framework in manifold ways. If you are interested in this line of research, please get in touch!
